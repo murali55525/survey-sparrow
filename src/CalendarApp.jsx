@@ -204,23 +204,8 @@ export default function CalendarApp() {
   }
 
   return (
-    <div className="min-h-screen flex bg-gray-50/80 overflow-hidden font-sans">
-      {/* Mobile toggle button - matte styling */}
-      <button 
-        className="fixed z-40 bottom-6 left-6 md:hidden bg-blue-400/90 text-white p-4 rounded-2xl shadow-lg backdrop-blur-sm"
-        onClick={() => setSidebarOpen(!sidebarOpen)}
-      >
-        {sidebarOpen ? (
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        ) : (
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-          </svg>
-        )}
-      </button>
-      
+    <div className="flex min-h-screen w-full bg-[#f8fafc]">
+      {/* Sidebar */}
       <Sidebar 
         sidebarOpen={sidebarOpen}
         setSidebarOpen={setSidebarOpen}
@@ -237,8 +222,8 @@ export default function CalendarApp() {
         handleToggleTaskCompletion={handleToggleTaskCompletion}
         handleDeleteTask={handleDeleteTask}
       />
-      
-      <div className="flex-1 flex flex-col">
+      {/* Main content area */}
+      <div className="flex-1 flex flex-col items-stretch">
         <CalendarHeader 
           viewMode={viewMode}
           setViewMode={setViewMode}

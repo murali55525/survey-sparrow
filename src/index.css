@@ -2,7 +2,64 @@
 @tailwind components;
 @tailwind utilities;
 
-/* You can add custom styles below if needed */
+/* Override all blue color and hover effects with the strongest possible selectors */
+*,
+*::before,
+*::after {
+  --tw-ring-color: transparent !important;
+  --tw-ring-offset-color: transparent !important;
+  --tw-ring-offset-width: 0 !important;
+  --tw-ring-shadow: none !important;
+  --tw-ring-offset-shadow: none !important;
+  box-shadow: none !important;
+}
+
+/* Reset all focus and hover styles for ALL elements */
+*:hover,
+*:focus,
+*:focus-visible,
+*:focus-within,
+*:active,
+button:hover,
+a:hover,
+[role="button"]:hover,
+input:hover,
+select:hover,
+textarea:hover,
+.hover\:bg-blue-50:hover,
+.hover\:bg-blue-100:hover,
+.hover\:bg-blue-200:hover,
+.hover\:bg-blue-300:hover,
+.hover\:bg-blue-400:hover,
+.hover\:bg-blue-500:hover,
+.hover\:bg-blue-600:hover,
+.hover\:text-blue-500:hover,
+.hover\:text-blue-600:hover,
+.hover\:text-blue-700:hover,
+.hover\:border-blue-500:hover,
+.hover\:border-blue-600:hover {
+  background-color: white !important;
+  color: inherit !important;
+  border-color: #d1d5db !important; /* gray-300 */
+  outline: none !important;
+  box-shadow: none !important;
+  transform: none !important;
+  transition: none !important;
+}
+
+/* Override specific Tailwind classes that might apply blue on hover */
+.text-blue-500, .text-blue-600, .text-blue-700,
+.bg-blue-50, .bg-blue-100, .bg-blue-200, .bg-blue-300, .bg-blue-400, .bg-blue-500,
+.border-blue-300, .border-blue-400, .border-blue-500 {
+  color: #374151 !important; /* gray-700 */
+  background-color: white !important;
+  border-color: #d1d5db !important; /* gray-300 */
+}
+
+/* Prevent any transitions that might be causing color changes */
+* {
+  transition: none !important;
+}
 
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
@@ -58,6 +115,63 @@ button:hover {
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
+}
+
+/* Add these global styles to remove focus outlines and hover effects */
+
+*:focus {
+  outline: none !important;
+  --tw-ring-color: transparent !important;
+  --tw-ring-offset-width: 0px !important;
+  --tw-ring-offset-color: transparent !important;
+  --tw-ring-offset-shadow: none !important;
+  --tw-ring-shadow: none !important;
+  box-shadow: none !important;
+}
+
+/* Add these global styles to completely remove all blue focus/hover effects */
+
+/* Reset all focus styles */
+*:focus,
+*:focus-visible,
+*:focus-within,
+*:active {
+  outline: none !important;
+  box-shadow: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+  border-color: #d1d5db !important; /* gray-300 */
+}
+
+/* Override browser default focus styles for form elements */
+input:focus, 
+select:focus, 
+textarea:focus, 
+button:focus,
+[role="button"]:focus {
+  outline: none !important;
+  border-color: #d1d5db !important; /* gray-300 */
+  box-shadow: none !important;
+}
+
+/* Reset button and link hover styles */
+button:hover, a:hover, [role="button"]:hover {
+  background-color: inherit !important;
+  color: inherit !important;
+}
+
+/* Reset specific Tailwind focus classes */
+.focus\:ring:focus,
+.focus\:ring-1:focus,
+.focus\:ring-2:focus,
+.focus\:ring-4:focus,
+.focus\:border-blue-500:focus,
+.focus\:border-blue-300:focus,
+.focus\:border-blue-400:focus,
+.focus\:border-indigo-500:focus,
+.focus\:border-indigo-300:focus,
+.focus\:border-indigo-400:focus {
+  box-shadow: none !important;
+  border-color: #d1d5db !important; /* gray-300 */
 }
 
 @media (prefers-color-scheme: light) {
