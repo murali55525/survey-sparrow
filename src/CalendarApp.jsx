@@ -199,11 +199,11 @@ export default function CalendarApp({ viewMode, setViewMode }) {
 
   // Handler for "Today" button in MonthView/YearView/DayView
   const handleGoToToday = () => {
-    setViewYear(today.getFullYear())
-    setViewMonth(today.getMonth())
-    setDayViewDate(today)
-    setViewMode('day') // or 'month', depending on your default
-  }
+    setViewYear(today.getFullYear());
+    setViewMonth(today.getMonth());
+    setDayViewDate(today);
+    setViewMode(viewMode); // Stay in current view
+  };
 
   // Helper functions for date manipulation
   const getTimeRangeStr = (hour) => {
@@ -269,6 +269,7 @@ export default function CalendarApp({ viewMode, setViewMode }) {
               handleOpenModal={handleOpenModal}
               handleDayClick={handleDayClick}
               today={today}
+              onGoToToday={handleGoToToday}
             />
           )}
           
@@ -283,6 +284,8 @@ export default function CalendarApp({ viewMode, setViewMode }) {
               viewMode={viewMode}
               setViewMode={setViewMode}
               onGoToToday={handleGoToToday}
+              setViewMonth={setViewMonth}
+              setViewYear={setViewYear}
             />
           )}
           
@@ -293,6 +296,7 @@ export default function CalendarApp({ viewMode, setViewMode }) {
               setViewMonth={setViewMonth}
               setViewMode={setViewMode}
               onGoToToday={handleGoToToday}
+              setViewYear={setViewYear}
             />
           )}
         </div>

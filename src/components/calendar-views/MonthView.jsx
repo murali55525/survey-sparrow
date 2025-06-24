@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, Plus, X, Clock, MapPin, User, Star, ChevronLeft, ChevronRight } from 'lucide-react';
-import ViewSelector from '../ViewSelector';
 
 // Utility functions (mock implementations)
 const getDaysInMonth = (year, month) => new Date(year, month + 1, 0).getDate();
@@ -10,11 +9,14 @@ const getDateStr = (year, month, day) => `${year}-${String(month + 1).padStart(2
 export default function MonthView({ 
   viewMode, 
   setViewMode, 
+  onGoToToday,
+  setViewMonth,
+  setViewYear,
   ...props 
 }) {
   const [today] = useState(new Date());
-  const [viewMonth, setViewMonth] = useState(today.getMonth());
-  const [viewYear, setViewYear] = useState(today.getFullYear());
+  const [viewMonth, setViewMonthState] = useState(today.getMonth());
+  const [viewYear, setViewYearState] = useState(today.getFullYear());
   const [events, setEvents] = useState({
     '2024-12-25': [
       { title: 'Christmas Day', time: '00:00', category: 'holiday', priority: 'high' },
@@ -109,20 +111,89 @@ export default function MonthView({
   const navigateMonth = (direction) => {
     if (direction === 'prev') {
       if (viewMonth === 0) {
-        setViewMonth(11);
-        setViewYear(viewYear - 1);
+        setViewMonthState(11);
+        setViewYearState(viewYear - 1);
       } else {
-        setViewMonth(viewMonth - 1);
+        setViewMonthState(viewMonth - 1);
       }
     } else {
       if (viewMonth === 11) {
-        setViewMonth(0);
-        setViewYear(viewYear + 1);
+        setViewMonthState(0);
+        setViewYearState(viewYear + 1);
       } else {
-        setViewMonth(viewMonth + 1);
+        setViewMonthState(viewMonth + 1);
       }
     }
   };
+
+  // Kerala and Tamil festivals data with descriptions
+  const festivals = {
+    // January 2025
+    '2025-01-14': [{ 
+      title: 'Makar Sankranti', 
+      type: 'tamil', 
+      color: 'from-orange-100 to-amber-200',
+      description: 'Makar Sankranti marks the transition of the Sun into the zodiacal sign of Capricorn (Makara) on its celestial path. It is celebrated with kite flying, sesame sweets, and prayers for prosperity.',
+      significance: 'Harvest festival celebrating the sun god',
+      traditions: ['Kite flying', 'Til-gul sweets', 'Holy bath in rivers']
+    }],
+    '2025-01-15': [{ 
+      title: 'Thai Pusam', 
+      type: 'tamil', 
+      color: 'from-yellow-100 to-orange-200',
+      description: 'Thai Pusam is a Hindu festival celebrated by Tamil communities worldwide. It honors Lord Murugan and is marked by elaborate processions and kavadi (burden-bearing) ceremonies.',
+      significance: 'Devotion to Lord Murugan',
+      traditions: ['Kavadi procession', 'Body piercing', 'Milk abhishekam']
+    }],
+    
+    // April 2025
+    '2025-04-10': [{ 
+      title: 'Vishu', 
+      type: 'kerala', 
+      color: 'from-yellow-100 to-amber-200',
+      description: 'Vishu is the traditional New Year of Kerala. It begins with Vishukkani (auspicious sight) and includes feast, fireworks, and giving Vishukkaineetam (money to younger ones).',
+      significance: 'Malayalam New Year celebration',
+      traditions: ['Vishukkani viewing', 'Sadya feast', 'Vishukkaineetam', 'Fireworks']
+    }],
+    '2025-04-13': [{ 
+      title: 'Tamil New Year', 
+      type: 'tamil', 
+      color: 'from-red-100 to-orange-200',
+      description: 'Tamil New Year (Puthandu) marks the beginning of the Tamil calendar year. Homes are decorated with kolam patterns and families gather for traditional meals.',
+      significance: 'Beginning of Tamil calendar year',
+      traditions: ['Kolam decoration', 'Mango leaf decoration', 'Traditional feast', 'New clothes']
+    }],
+    
+    // August 2025
+    '2025-08-19': [{ 
+      title: 'Onam (Begins)', 
+      type: 'kerala', 
+      color: 'from-yellow-100 to-orange-200',
+      description: 'Onam is the most important festival of Kerala, celebrating the homecoming of King Mahabali. It features elaborate flower carpets (Pookalam) and traditional boat races.',
+      significance: 'Homecoming of King Mahabali',
+      traditions: ['Pookalam (flower carpet)', 'Thiruvathira dance', 'Pulikali', 'Vallamkali (boat race)']
+    }],
+    '2025-08-30': [{ 
+      title: 'Thiruvonam (Onam)', 
+      type: 'kerala', 
+      color: 'from-gold-100 to-yellow-200',
+      description: 'Thiruvonam is the most important day of Onam festival. Families gather for the grand Onasadya feast with 26+ dishes served on banana leaves.',
+      significance: 'Main day of Onam celebration',
+      traditions: ['Onasadya feast', 'Thiruvathira dance', 'Tiger dance', 'Family gatherings']
+    }],
+    
+    // November 2025
+    '2025-11-30': [{ 
+      title: 'Karthikai Deepam', 
+      type: 'tamil', 
+      color: 'from-amber-100 to-yellow-200',
+      description: 'Karthikai Deepam is the festival of lights celebrated in Tamil Nadu. Homes are illuminated with oil lamps and special prayers are offered to Lord Shiva.',
+      significance: 'Festival of lights honoring Lord Shiva',
+      traditions: ['Oil lamp lighting', 'Bharani star observation', 'Special prayers', 'Sweet preparations']
+    }],
+  };
+
+  // ...existing utility functions...
 
   const renderCalendarCells = () => {
     const cells = [];
@@ -139,9 +210,11 @@ export default function MonthView({
       const dateStr = getDateStr(viewYear, viewMonth, day);
       const isToday = isCurrentDate(day);
       const isWeekend = (new Date(viewYear, viewMonth, day)).getDay() % 6 === 0;
-      const isCurrentMonth = viewMonth === today.getMonth() && viewYear === today.getFullYear();
       
       const dayEvents = events[dateStr] || [];
+      const dayFestivals = festivals[dateStr] || [];
+      const allItems = [...dayEvents, ...dayFestivals];
+      const hasFestivals = dayFestivals.length > 0;
       
       cells.push(
         <div
@@ -149,7 +222,7 @@ export default function MonthView({
           className={`border border-gray-200 p-3 min-h-[120px] flex flex-col relative bg-white ${
             isToday ? dayColors.today : 
             isWeekend ? dayColors.weekend : dayColors.weekday
-          } ${dayEvents.length > 0 ? dayColors.hasEvents : ''}`}
+          } ${allItems.length > 0 ? dayColors.hasEvents : ''}`}
           onClick={() => handleDayClick(dateStr)}
         >
           <div className="flex items-center justify-between mb-2">
@@ -160,9 +233,14 @@ export default function MonthView({
             </span>
             
             <div className="flex items-center gap-1">
-              {dayEvents.length > 0 && (
+              {allItems.length > 0 && (
                 <span className="text-xs bg-gray-200 text-gray-800 rounded-full px-2 py-1 font-medium">
-                  {dayEvents.length}
+                  {allItems.length}
+                </span>
+              )}
+              {hasFestivals && (
+                <span className="text-xs bg-orange-500 text-white rounded-full px-2 py-1 font-medium">
+                  🎉
                 </span>
               )}
               <button
@@ -177,11 +255,40 @@ export default function MonthView({
             </div>
           </div>
           
-          {/* Events with white background */}
+          {/* Events and festivals display */}
           <div className="flex flex-col gap-1 overflow-y-auto flex-1">
-            {dayEvents.slice(0, 3).map((event, idx) => (
+            {/* Show festivals first with names */}
+            {dayFestivals.slice(0, 2).map((festival, idx) => {
+              const festivalIcon = festival.type === 'kerala' ? '🌴' : 
+                                 festival.type === 'tamil' ? '🏛️' : 
+                                 festival.type === 'national' ? '🇮🇳' : '🎉';
+              
+              return (
+                <div 
+                  key={`festival-${idx}`} 
+                  className={`p-2 rounded bg-gradient-to-r ${festival.color} border-l-4 border-orange-500 shadow-sm`}
+                  onClick={(ev) => ev.stopPropagation()}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm">{festivalIcon}</span>
+                    <div className="flex-1 min-w-0">
+                      <span className="block text-xs font-bold text-orange-800 truncate">
+                        {festival.title}
+                      </span>
+                      <span className="text-xs text-orange-700 opacity-75">
+                        {festival.type === 'kerala' ? 'Kerala Festival' : 
+                         festival.type === 'tamil' ? 'Tamil Festival' : 'National Holiday'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+            
+            {/* Then show regular events */}
+            {dayEvents.slice(0, Math.max(1, 3 - dayFestivals.length)).map((event, idx) => (
               <div 
-                key={idx} 
+                key={`event-${idx}`} 
                 className="flex items-center py-1.5 px-2 rounded bg-white border border-gray-200 shadow-sm"
                 onClick={(ev) => ev.stopPropagation()}
               >
@@ -205,9 +312,10 @@ export default function MonthView({
                 </div>
               </div>
             ))}
-            {dayEvents.length > 3 && (
+            
+            {allItems.length > 3 && (
               <div className="text-xs text-gray-500 text-center py-1 bg-gray-100 rounded">
-                +{dayEvents.length - 3} more
+                +{allItems.length - 3} more
               </div>
             )}
           </div>
@@ -220,48 +328,27 @@ export default function MonthView({
 
   return (
     <div className="w-full h-full flex flex-col bg-transparent overflow-hidden relative">
-      {/* Cosmic floating background elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 right-20 w-96 h-96 bg-gradient-to-br from-blue-200/10 to-purple-200/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-40 left-20 w-80 h-80 bg-gradient-to-br from-pink-200/10 to-indigo-200/10 rounded-full blur-3xl animate-pulse animation-delay-2000"></div>
-        <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-gradient-to-br from-green-200/10 to-teal-200/10 rounded-full blur-3xl animate-pulse animation-delay-4000"></div>
-        <div className="absolute top-32 left-1/4 w-48 h-48 bg-gradient-to-br from-amber-200/10 to-orange-200/10 rounded-full blur-3xl animate-pulse animation-delay-1000"></div>
-        <div className="absolute bottom-20 right-1/3 w-56 h-56 bg-gradient-to-br from-violet-200/10 to-rose-200/10 rounded-full blur-3xl animate-pulse animation-delay-3000"></div>
-      </div>
-
-      {/* Ultra-futuristic floating header */}
+      {/* ...existing cosmic background and header... */}
       <div className="sticky top-0 z-30 px-6 pt-6 pb-4">
         <div className="bg-white/10 backdrop-blur-3xl rounded-[2rem] p-8 shadow-[0_25px_60px_rgba(8,_112,_184,_0.8)] border border-white/30 relative overflow-hidden">
-          {/* Holographic overlay */}
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 animate-gradient-x"></div>
-          
           <div className="flex items-center justify-between relative z-10">
             <div className="flex items-center space-x-8">
               <div className="relative group">
-                <h1 className="text-5xl font-black bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent drop-shadow-2xl">
-                  {new Date(viewYear, viewMonth).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                <h1 className="text-6xl font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent drop-shadow-2xl">
+                  {monthNames[viewMonth]} {viewYear}
                 </h1>
-                <div className="absolute -bottom-2 left-0 w-full h-2 bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 rounded-full transform origin-left group-hover:scale-x-100 scale-x-0 transition-transform duration-700"></div>
-                
-                {/* Floating decorative elements */}
-                <div className="absolute -top-4 -right-4 w-8 h-8 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full animate-bounce shadow-2xl"></div>
-                <div className="absolute -bottom-2 -left-2 w-6 h-6 bg-gradient-to-r from-green-400 to-teal-500 rounded-full animate-pulse shadow-xl"></div>
+                <div className="absolute -bottom-2 left-0 w-full h-2 bg-gradient-to-r from-blue-400 to-purple-600 rounded-full transform origin-left group-hover:scale-x-100 scale-x-0 transition-transform duration-700"></div>
               </div>
             </div>
             
             <div className="flex items-center gap-6">
-              <ViewSelector currentView={viewMode} setViewMode={setViewMode} />
-              
               <button
                 className="group relative px-8 py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold shadow-2xl transform transition-all duration-300 hover:scale-110 hover:shadow-emerald-500/25 overflow-hidden"
                 onClick={() => {
-                  const today = new Date();
-                  setViewMonth(today.getMonth());
-                  setViewYear(today.getFullYear());
+                  if (onGoToToday) onGoToToday();
                 }}
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
                 <span className="relative z-10 flex items-center gap-2">
                   <span className="text-xl animate-bounce">✨</span>
                   Today

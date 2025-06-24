@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { formatTime } from "../../utils/dateUtils";
-import ViewSelector from "../ViewSelector";
+// import ViewSelector from "../ViewSelector";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 
 export default function WeekView({
@@ -14,6 +14,7 @@ export default function WeekView({
   tasks = [],
   handleOpenModal,
   handleDayClick,
+  onGoToToday,
 }) {
   const [currentTime, setCurrentTime] = useState(new Date());
 
@@ -180,13 +181,11 @@ export default function WeekView({
             </div>
 
             <div className="flex items-center gap-6">
-              <ViewSelector currentView={viewMode} setViewMode={setViewMode} />
-
+              {/* Removed <ViewSelector currentView={viewMode} setViewMode={setViewMode} /> */}
               <button
                 className="group relative px-8 py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold shadow-2xl transform transition-all duration-300 hover:scale-110 hover:shadow-emerald-500/25 overflow-hidden"
                 onClick={() => {
-                  const today = new Date();
-                  setWeekStartDate && setWeekStartDate(getWeekStart(today));
+                  if (onGoToToday) onGoToToday();
                 }}
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -340,3 +339,4 @@ export default function WeekView({
     </div>
   );
 }
+

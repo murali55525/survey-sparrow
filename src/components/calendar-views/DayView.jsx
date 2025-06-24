@@ -1,6 +1,5 @@
 import React from 'react';
 import { formatTime } from '../../utils/dateUtils';
-import ViewSelector from '../ViewSelector';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 export default function DayView({
@@ -12,6 +11,7 @@ export default function DayView({
   setEvents,
   today,
   tasks = [],
+  onGoToToday,
   ...props
 }) {
   // Always ensure dayViewDate is a Date object
@@ -252,50 +252,52 @@ export default function DayView({
       </div>
 
       {/* Ultra-futuristic floating header */}
-      <div className="sticky top-0 z-30 px-6 pt-6 pb-4">
-        <div className="bg-white/10 backdrop-blur-3xl rounded-[2rem] p-8 shadow-[0_25px_60px_rgba(8,_112,_184,_0.8)] border border-white/30 relative overflow-hidden">
+      <div className="sticky top-0 z-30 px-4 pt-4 pb-3">
+        <div className="bg-white/10 backdrop-blur-3xl rounded-[1.5rem] p-6 shadow-[0_20px_50px_rgba(8,_112,_184,_0.7)] border border-white/30 relative overflow-hidden">
           {/* Holographic overlay */}
           <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 animate-gradient-x"></div>
           
           <div className="flex items-center justify-between relative z-10">
-            <div className="flex items-center space-x-8">
+            <div className="flex items-center space-x-6">
               <div className="relative group">
-                <h1 className="text-5xl font-black bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent drop-shadow-2xl">
+                <h1 className="text-4xl font-black bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent drop-shadow-2xl">
                   {formatDate(currentDate)}
                 </h1>
-                <div className="absolute -bottom-2 left-0 w-full h-2 bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 rounded-full transform origin-left group-hover:scale-x-100 scale-x-0 transition-transform duration-700"></div>
+                <div className="absolute -bottom-1.5 left-0 w-full h-1.5 bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 rounded-full transform origin-left group-hover:scale-x-100 scale-x-0 transition-transform duration-700"></div>
                 
                 {/* Floating decorative elements */}
-                <div className="absolute -top-4 -right-4 w-8 h-8 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full animate-bounce shadow-2xl"></div>
-                <div className="absolute -bottom-2 -left-2 w-6 h-6 bg-gradient-to-r from-green-400 to-teal-500 rounded-full animate-pulse shadow-xl"></div>
+                <div className="absolute -top-3 -right-3 w-6 h-6 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full animate-bounce shadow-xl"></div>
+                <div className="absolute -bottom-1.5 -left-1.5 w-5 h-5 bg-gradient-to-r from-green-400 to-teal-500 rounded-full animate-pulse shadow-lg"></div>
               </div>
             </div>
             
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-4">
               <button
-                className="group relative px-8 py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold shadow-2xl transform transition-all duration-300 hover:scale-110 hover:shadow-emerald-500/25 overflow-hidden"
-                onClick={handleGoToToday}
+                className="group relative px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold shadow-xl transform transition-all duration-300 hover:scale-105 hover:shadow-emerald-500/25 overflow-hidden"
+                onClick={() => {
+                  if (onGoToToday) onGoToToday();
+                }}
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
                 <span className="relative z-10 flex items-center gap-2">
-                  <span className="text-xl animate-bounce">✨</span>
+                  <span className="text-lg animate-bounce">✨</span>
                   Today
                 </span>
               </button>
               
-              <div className="flex bg-white/20 backdrop-blur-xl rounded-2xl shadow-lg overflow-hidden p-1">
+              <div className="flex bg-white/20 backdrop-blur-xl rounded-xl shadow-md overflow-hidden p-0.5">
                 <button
                   onClick={() => navigateDay('prev')}
-                  className="p-4 text-gray-700 hover:bg-gradient-to-r hover:from-blue-500 hover:to-purple-600 hover:text-white transition-all duration-300 group rounded-xl"
+                  className="p-3 text-gray-700 hover:bg-gradient-to-r hover:from-blue-500 hover:to-purple-600 hover:text-white transition-all duration-300 group rounded-lg"
                 >
-                  <ChevronLeft className="w-6 h-6 transform group-hover:scale-110 transition-transform duration-200" />
+                  <ChevronLeft className="w-5 h-5 transform group-hover:scale-110 transition-transform duration-200" />
                 </button>
                 <button
                   onClick={() => navigateDay('next')}
-                  className="p-4 text-gray-700 hover:bg-gradient-to-r hover:from-blue-500 hover:to-purple-600 hover:text-white transition-all duration-300 group rounded-xl"
+                  className="p-3 text-gray-700 hover:bg-gradient-to-r hover:from-blue-500 hover:to-purple-600 hover:text-white transition-all duration-300 group rounded-lg"
                 >
-                  <ChevronRight className="w-6 h-6 transform group-hover:scale-110 transition-transform duration-200" />
+                  <ChevronRight className="w-5 h-5 transform group-hover:scale-110 transition-transform duration-200" />
                 </button>
               </div>
             </div>
@@ -304,36 +306,36 @@ export default function DayView({
       </div>
       
       {/* Revolutionary day content with holographic time slots */}
-      <div className="flex-1 overflow-y-auto px-6 pb-6 relative z-10">
-        <div className="max-w-7xl mx-auto">
+      <div className="flex-1 overflow-y-auto px-4 pb-4 relative z-10">
+        <div className="max-w-6xl mx-auto">
           {/* Enhanced events summary with 3D effects */}
           {dayEvents.length > 0 && (
-            <div className="mb-8 bg-white/20 backdrop-blur-3xl rounded-[2rem] p-8 border border-white/30 shadow-[0_20px_40px_rgba(0,0,0,0.1)] animate-slide-up relative overflow-hidden">
+            <div className="mb-6 bg-white/20 backdrop-blur-3xl rounded-[1.5rem] p-6 border border-white/30 shadow-[0_15px_35px_rgba(0,0,0,0.1)] animate-slide-up relative overflow-hidden">
               {/* Holographic background */}
               <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-purple-50/50 opacity-50"></div>
               
-              <h2 className="text-3xl font-black text-gray-800 mb-6 flex items-center gap-4 relative z-10">
-                <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-2xl">
-                  <span className="text-white text-lg">📅</span>
+              <h2 className="text-2xl font-black text-gray-800 mb-4 flex items-center gap-3 relative z-10">
+                <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-xl">
+                  <span className="text-white text-base">📅</span>
                 </div>
                 Today's Events
                 <div className="flex-1 h-px bg-gradient-to-r from-blue-500 to-purple-600 opacity-30"></div>
               </h2>
               
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 relative z-10">
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 relative z-10">
                 {dayEvents.map((event, idx) => (
                   <div 
                     key={idx} 
-                    className="group p-6 bg-gradient-to-br from-white/80 to-blue-50/80 rounded-2xl border border-blue-200/30 hover:shadow-2xl transform hover:scale-105 transition-all duration-500 backdrop-blur-lg relative overflow-hidden"
+                    className="group p-4 bg-gradient-to-br from-white/80 to-blue-50/80 rounded-xl border border-blue-200/30 hover:shadow-xl transform hover:scale-105 transition-all duration-500 backdrop-blur-lg relative overflow-hidden"
                     style={{ animationDelay: `${idx * 150}ms` }}
                   >
                     {/* Floating background effect */}
                     <div className="absolute inset-0 bg-gradient-to-br from-blue-100/20 to-purple-100/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                     
-                    <div className="flex items-center space-x-4 relative z-10">
-                      <div className="w-6 h-6 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full animate-pulse shadow-lg"></div>
+                    <div className="flex items-center space-x-3 relative z-10">
+                      <div className="w-5 h-5 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full animate-pulse shadow-md"></div>
                       <div className="flex-1">
-                        <div className="font-bold text-gray-800 group-hover:text-blue-700 transition-colors duration-200 text-lg">{event.title}</div>
+                        <div className="font-bold text-gray-800 group-hover:text-blue-700 transition-colors duration-200 text-base">{event.title}</div>
                         <div className="text-sm text-gray-600 mt-1 font-semibold">{event.time} • {event.category}</div>
                       </div>
                     </div>
@@ -344,24 +346,24 @@ export default function DayView({
           )}
 
           {/* Ultra-futuristic time slots grid */}
-          <div className="grid gap-6 lg:gap-8">
+          <div className="grid gap-4 lg:gap-6">
             {Array.from({ length: 24 }, (_, hour) => (
               <div 
                 key={hour} 
-                className="group flex flex-col sm:flex-row items-start space-y-4 sm:space-y-0 sm:space-x-8 animate-slide-up"
+                className="group flex flex-col sm:flex-row items-start space-y-3 sm:space-y-0 sm:space-x-6 animate-slide-up"
                 style={{ animationDelay: `${hour * 50}ms` }}
               >
                 {/* Holographic time display */}
-                <div className="w-full sm:w-32 text-center sm:text-right">
-                  <div className="inline-flex items-center justify-center w-28 h-16 bg-gradient-to-br from-white/60 to-gray-100/60 rounded-2xl group-hover:from-blue-100/60 group-hover:to-purple-100/60 transition-all duration-500 backdrop-blur-lg border border-white/40 shadow-lg group-hover:shadow-2xl transform group-hover:scale-110">
-                    <span className="text-xl font-black text-gray-700 group-hover:text-blue-700 transition-colors duration-300">
+                <div className="w-full sm:w-28 text-center sm:text-right">
+                  <div className="inline-flex items-center justify-center w-24 h-12 bg-gradient-to-br from-white/60 to-gray-100/60 rounded-xl group-hover:from-blue-100/60 group-hover:to-purple-100/60 transition-all duration-500 backdrop-blur-lg border border-white/40 shadow-md group-hover:shadow-xl transform group-hover:scale-105">
+                    <span className="text-lg font-black text-gray-700 group-hover:text-blue-700 transition-colors duration-300">
                       {hour === 0 ? '12 AM' : hour === 12 ? '12 PM' : hour > 12 ? `${hour - 12} PM` : `${hour} AM`}
                     </span>
                   </div>
                 </div>
                 
                 {/* Revolutionary time slot with advanced interactivity */}
-                <div className="flex-1 min-h-[100px] bg-white/40 backdrop-blur-xl rounded-3xl border border-white/50 p-8 group-hover:bg-gradient-to-r group-hover:from-blue-50/60 group-hover:to-purple-50/60 transition-all duration-500 shadow-lg hover:shadow-2xl transform hover:scale-[1.02] cursor-pointer relative overflow-hidden">
+                <div className="flex-1 min-h-[80px] bg-white/40 backdrop-blur-xl rounded-2xl border border-white/50 p-6 group-hover:bg-gradient-to-r group-hover:from-blue-50/60 group-hover:to-purple-50/60 transition-all duration-500 shadow-md hover:shadow-xl transform hover:scale-[1.01] cursor-pointer relative overflow-hidden">
                   {/* Holographic pattern overlay */}
                   <div className="absolute inset-0 bg-gradient-to-br from-white/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-3xl"></div>
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
@@ -375,29 +377,29 @@ export default function DayView({
                         return eventHour === hour;
                       })
                       .map((event, idx) => (
-                        <div key={idx} className="mb-4 p-6 bg-gradient-to-r from-blue-100/80 to-purple-100/80 rounded-2xl border-l-4 border-blue-500 shadow-xl transform hover:scale-105 transition-all duration-300 backdrop-blur-sm">
-                          <div className="font-black text-blue-800 text-xl">{event.title}</div>
-                          <div className="text-sm text-blue-600 opacity-75 mt-2 font-semibold">{event.time} • {event.category}</div>
+                        <div key={idx} className="mb-3 p-4 bg-gradient-to-r from-blue-100/80 to-purple-100/80 rounded-xl border-l-4 border-blue-500 shadow-lg transform hover:scale-105 transition-all duration-300 backdrop-blur-sm">
+                          <div className="font-black text-blue-800 text-lg">{event.title}</div>
+                          <div className="text-sm text-blue-600 opacity-75 mt-1 font-semibold">{event.time} • {event.category}</div>
                         </div>
                       ))}
                     
                     {/* Enhanced empty state */}
                     {!dayEvents.some(event => parseInt(event.time?.split(':')[0] || '0') === hour) && (
-                      <div className="flex items-center justify-center h-full min-h-[60px]">
+                      <div className="flex items-center justify-center h-full min-h-[48px]">
                         <div className="text-gray-400 text-center group-hover:text-gray-600 transition-colors duration-300">
-                          <div className="text-4xl mb-3 opacity-0 group-hover:opacity-100 transition-all duration-500 transform group-hover:scale-110">➕</div>
-                          <div className="text-lg font-semibold">No events • Click to add</div>
+                          <div className="text-3xl mb-2 opacity-0 group-hover:opacity-100 transition-all duration-500 transform group-hover:scale-110">➕</div>
+                          <div className="text-base font-semibold">No events • Click to add</div>
                         </div>
                       </div>
                     )}
                   </div>
                   
                   {/* Floating interaction indicators */}
-                  <div className="absolute top-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse shadow-lg"></div>
+                  <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div className="w-2.5 h-2.5 bg-blue-500 rounded-full animate-pulse shadow-md"></div>
                   </div>
-                  <div className="absolute bottom-6 left-6 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                    <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse shadow-lg"></div>
+                  <div className="absolute bottom-4 left-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                    <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse shadow-md"></div>
                   </div>
                 </div>
               </div>
@@ -407,13 +409,13 @@ export default function DayView({
       </div>
 
       {/* Ultra-modern floating action button */}
-      <div className="fixed right-8 bottom-8 z-40">
-        <button className="group relative w-20 h-20 bg-gradient-to-r from-blue-500 via-purple-600 to-pink-500 rounded-3xl flex items-center justify-center shadow-[0_20px_40px_rgba(59,130,246,0.4)] transform transition-all duration-500 hover:scale-125 hover:rotate-90 hover:shadow-[0_25px_50px_rgba(59,130,246,0.6)] focus:outline-none focus:ring-4 focus:ring-blue-300/50 animate-float overflow-hidden">
+      <div className="fixed right-6 bottom-6 z-40">
+        <button className="group relative w-16 h-16 bg-gradient-to-r from-blue-500 via-purple-600 to-pink-500 rounded-2xl flex items-center justify-center shadow-[0_15px_35px_rgba(59,130,246,0.4)] transform transition-all duration-500 hover:scale-125 hover:rotate-90 hover:shadow-[0_20px_45px_rgba(59,130,246,0.6)] focus:outline-none focus:ring-4 focus:ring-blue-300/50 animate-float overflow-hidden">
           {/* Holographic overlay */}
           <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
           
-          <span className="text-white text-3xl group-hover:scale-110 transition-transform duration-200 relative z-10">➕</span>
+          <span className="text-white text-2xl group-hover:scale-110 transition-transform duration-200 relative z-10">➕</span>
           
           {/* Orbiting particles */}
           <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">

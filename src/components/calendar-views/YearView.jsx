@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 import { getDaysInMonth, getFirstDayOfWeek } from '../../utils/dateUtils';
-import ViewSelector from '../ViewSelector';
 
-export default function YearView({ viewYear, today, setViewMonth, setViewMode, events = {}, viewMode, setViewYear, onDateClick, selectedDate }) {
+export default function YearView({ viewYear, today, setViewMonth, setViewMode, events = {}, viewMode, setViewYear, onDateClick, selectedDate, onGoToToday }) {
   // Soft, elegant themes
   const themes = {
     gentle: {
@@ -45,7 +44,7 @@ export default function YearView({ viewYear, today, setViewMonth, setViewMode, e
 
   // Enhanced month view with colorful design and animations
   const generateMonthView = (month) => {
-    const colorSet = themes.colorful.months[month];
+    const colorSet = themes.gentle.months[month];
     const { totalEvents } = getEventStats(viewYear, month);
     const isCurrentMonthHighlight = isCurrentMonth(month);
     
@@ -164,11 +163,12 @@ export default function YearView({ viewYear, today, setViewMonth, setViewMode, e
     );
   };
 
-  // Handler for "Today" button
+  // Handler for "Today" button - only change year
   const handleGoToToday = () => {
-    setViewYear(today.getFullYear());
-    setViewMonth(today.getMonth());
-    setViewMode('month');
+    if (typeof setViewYear === 'function' && today instanceof Date) {
+      setViewYear(today.getFullYear());
+    }
+    // Do NOT change month or view mode here
   };
 
   return (
@@ -178,8 +178,6 @@ export default function YearView({ viewYear, today, setViewMonth, setViewMode, e
         <div className="absolute top-20 right-20 w-96 h-96 bg-gradient-to-br from-blue-200/10 to-purple-200/10 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute bottom-40 left-20 w-80 h-80 bg-gradient-to-br from-pink-200/10 to-indigo-200/10 rounded-full blur-3xl animate-pulse animation-delay-2000"></div>
         <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-gradient-to-br from-green-200/10 to-teal-200/10 rounded-full blur-3xl animate-pulse animation-delay-4000"></div>
-        <div className="absolute top-32 left-1/4 w-48 h-48 bg-gradient-to-br from-amber-200/10 to-orange-200/10 rounded-full blur-3xl animate-pulse animation-delay-1000"></div>
-        <div className="absolute bottom-20 right-1/3 w-56 h-56 bg-gradient-to-br from-violet-200/10 to-rose-200/10 rounded-full blur-3xl animate-pulse animation-delay-3000"></div>
       </div>
 
       {/* Ultra-futuristic floating header */}
@@ -203,8 +201,6 @@ export default function YearView({ viewYear, today, setViewMonth, setViewMode, e
             </div>
             
             <div className="flex items-center gap-6">
-              <ViewSelector currentView={viewMode} setViewMode={setViewMode} />
-              
               <button
                 className="group relative px-8 py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold shadow-2xl transform transition-all duration-300 hover:scale-110 hover:shadow-emerald-500/25 overflow-hidden"
                 onClick={handleGoToToday}
@@ -292,74 +288,76 @@ export default function YearView({ viewYear, today, setViewMonth, setViewMode, e
                   
                   {/* Days grid */}
                   <div className="grid grid-cols-7 gap-1">
-                    {(() => {
-                      const days = [];
-                      const firstDay = getFirstDayOfWeek(viewYear, month);
-                      const daysInMonth = getDaysInMonth(viewYear, month);
-                      
-                      // Empty cells
-                      for (let i = 0; i < firstDay; i++) {
-                        days.push(<div key={`empty-${i}`} className="h-8 w-8" />);
-                      }
-                      
-                      // Date cells
-                      for (let day = 1; day <= daysInMonth; day++) {
-                        const date = new Date(viewYear, month, day);
-                        const dateStr = date.toISOString().split('T')[0];
-                        const hasEvents = events[dateStr] && events[dateStr].length > 0;
-                        const isToday = date.toDateString() === today.toDateString();
-                        const isSelected = selectedDate === dateStr;
-                        const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+                    {
+                      (() => {
+                        const days = [];
+                        const firstDay = getFirstDayOfWeek(viewYear, month);
+                        const daysInMonth = getDaysInMonth(viewYear, month);
                         
-                        days.push(
-                          <div
-                            key={day}
-                            className={`relative h-8 w-8 flex items-center justify-center text-sm font-medium rounded-lg transition-all duration-200 cursor-pointer hover:scale-110 ${
-                              isToday
-                                ? 'bg-blue-500 text-white shadow-sm'
-                                : isSelected
-                                  ? 'bg-purple-500 text-white shadow-sm'
-                                  : hasEvents
-                                    ? `${colorSet.accent} text-white shadow-sm`
-                                    : isWeekend
-                                      ? 'text-red-500 hover:bg-red-50'
-                                      : 'text-gray-700 hover:bg-gray-100'
-                            }`}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if (onDateClick) {
-                                onDateClick(dateStr);
-                              }
-                            }}
-                          >
-                            {day}
-                            
-                            {/* Simple event indicator */}
-                            {hasEvents && !isToday && !isSelected && (
-                              <div className="absolute -bottom-0.5 left-1/2 transform -translate-x-1/2">
-                                <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
-                              </div>
-                            )}
-                            
-                            {/* Today indicator */}
-                            {isToday && (
-                              <div className="absolute -top-1 -right-1">
-                                <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
-                              </div>
-                            )}
-                            
-                            {/* Selected indicator */}
-                            {isSelected && !isToday && (
-                              <div className="absolute -top-1 -right-1">
-                                <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
-                              </div>
-                            )}
-                          </div>
-                        );
-                      }
-                      
-                      return days;
-                    })()}
+                        // Empty cells
+                        for (let i = 0; i < firstDay; i++) {
+                          days.push(<div key={`empty-${i}`} className="h-8 w-8" />);
+                        }
+                        
+                        // Date cells
+                        for (let day = 1; day <= daysInMonth; day++) {
+                          const date = new Date(viewYear, month, day);
+                          const dateStr = date.toISOString().split('T')[0];
+                          const hasEvents = events[dateStr] && events[dateStr].length > 0;
+                          const isToday = date.toDateString() === today.toDateString();
+                          const isSelected = selectedDate === dateStr;
+                          const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+                          
+                          days.push(
+                            <div
+                              key={day}
+                              className={`relative h-8 w-8 flex items-center justify-center text-sm font-medium rounded-lg transition-all duration-200 cursor-pointer hover:scale-110 ${
+                                isToday
+                                  ? 'bg-blue-500 text-white shadow-sm'
+                                  : isSelected
+                                    ? 'bg-purple-500 text-white shadow-sm'
+                                    : hasEvents
+                                      ? `${colorSet.accent} text-white shadow-sm`
+                                      : isWeekend
+                                        ? 'text-red-500 hover:bg-red-50'
+                                        : 'text-gray-700 hover:bg-gray-100'
+                              }`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (onDateClick) {
+                                  onDateClick(dateStr);
+                                }
+                              }}
+                            >
+                              {day}
+                              
+                              {/* Simple event indicator */}
+                              {hasEvents && !isToday && !isSelected && (
+                                <div className="absolute -bottom-0.5 left-1/2 transform -translate-x-1/2">
+                                  <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
+                                </div>
+                              )}
+                              
+                              {/* Today indicator */}
+                              {isToday && (
+                                <div className="absolute -top-1 -right-1">
+                                  <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
+                                </div>
+                              )}
+                              
+                              {/* Selected indicator */}
+                              {isSelected && !isToday && (
+                                <div className="absolute -top-1 -right-1">
+                                  <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        }
+                        
+                        return days;
+                      })()
+                    }
                   </div>
                 </div>
                 

@@ -5,7 +5,7 @@ export default function App() {
   const [viewMode, setViewMode] = useState('month')
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 font-inter text-[15px] text-gray-900 flex flex-col overflow-hidden">
+    <div className="h-screen w-full bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 font-inter text-[15px] text-gray-900 flex flex-col overflow-hidden">
       {/* Animated background particles */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-10 left-10 w-72 h-72 bg-blue-200/20 rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
@@ -14,7 +14,7 @@ export default function App() {
       </div>
 
       {/* Main content area with glass effect */}
-      <div className="flex-1 flex flex-col relative z-10">
+      <div className="flex-1 flex flex-col relative z-10 h-full overflow-hidden">
         <CalendarApp viewMode={viewMode} setViewMode={setViewMode} />
       </div>
     </div>
