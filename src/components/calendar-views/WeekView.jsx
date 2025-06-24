@@ -1,75 +1,342 @@
-import React from 'react'
-import { formatTime } from '../../utils/dateUtils'
+import React, { useState } from "react";
+import { formatTime } from "../../utils/dateUtils";
+import ViewSelector from "../ViewSelector";
+import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 
-export default function WeekView({ dayViewDate, events, handleDayClick, handleOpenModal, today }) {
-  // Generate week view
-  const generateWeekView = () => {
-    const weekDays = []
-    const weekStart = dayViewDate ? new Date(dayViewDate) : new Date()
-    weekStart.setDate(weekStart.getDate() - weekStart.getDay()) // Start from Sunday
-    
+export default function WeekView({
+  weekStartDate,
+  setWeekStartDate,
+  viewMode,
+  setViewMode,
+  events = {},
+  setEvents,
+  today,
+  tasks = [],
+  handleOpenModal,
+  handleDayClick,
+}) {
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  const navigateWeek = (direction) => {
+    const newDate = new Date(weekStartDate);
+    if (direction === "prev") {
+      newDate.setDate(newDate.getDate() - 7);
+    } else {
+      newDate.setDate(newDate.getDate() + 7);
+    }
+    setWeekStartDate(newDate);
+  };
+
+  const getWeekStart = (date) => {
+    const d = new Date(date);
+    const day = d.getDay();
+    const diff = d.getDate() - day;
+    return new Date(d.setDate(diff));
+  };
+
+  // Generate week days
+  const getWeekDays = () => {
+    const days = [];
+    const startDate = new Date(weekStartDate || today);
+
     for (let i = 0; i < 7; i++) {
-      const day = new Date(weekStart)
-      day.setDate(weekStart.getDate() + i)
-      const dateStr = `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, '0')}-${String(day.getDate()).padStart(2, '0')}`
-      
-      // Get events for this day
-      const dayEvents = Object.entries(events)
-        .filter(([key]) => key.startsWith(dateStr))
-        .reduce((acc, [_, eventsArray]) => [...acc, ...eventsArray], [])
-      
-      const isToday = day.toDateString() === today.toDateString()
-      
-      weekDays.push(
-        <div key={dateStr} className="flex flex-col flex-1">
-          <div 
-            className={`text-center py-2 cursor-pointer rounded-t-lg ${
-              isToday ? 'bg-blue-50/80 text-blue-600 shadow-sm' : 'bg-gray-50/70 text-gray-600'
-            }`}
-            onClick={() => handleDayClick(dateStr)}
-          >
-            <div className="text-xs uppercase">{day.toLocaleString('default', { weekday: 'short' })}</div>
-            <div className={`mx-auto mt-1 w-8 h-8 flex items-center justify-center rounded-full ${
-              isToday ? 'bg-blue-400/80 text-white shadow-sm' : ''
-            }`}>
-              {day.getDate()}
+      const date = new Date(startDate);
+      date.setDate(startDate.getDate() + i);
+      days.push(date);
+    }
+    return days;
+  };
+
+  const weekDays = getWeekDays();
+
+  // Enhanced time slots generation
+  const generateTimeSlots = () => {
+    const slots = [];
+    const currentHour = new Date().getHours();
+
+    for (let hour = 0; hour < 24; hour++) {
+      const isCurrentHour =
+        hour === currentHour &&
+        weekDays.some((day) => day.toDateString() === today.toDateString());
+
+      slots.push(
+        <div
+          key={hour}
+          className={`grid grid-cols-8 border-b border-gray-200/60 min-h-[80px] relative group ${
+            isCurrentHour
+              ? "bg-gradient-to-r from-blue-50/50 to-purple-50/50"
+              : "hover:bg-gradient-to-r hover:from-gray-50/50 hover:to-blue-50/50"
+          }`}
+        >
+          {/* Time column */}
+          <div className="col-span-1 flex items-start justify-end pr-4 pt-2 border-r border-gray-200/60">
+            <div
+              className={`text-sm font-semibold ${
+                isCurrentHour ? "text-blue-600" : "text-gray-600"
+              }`}
+            >
+              {hour === 0
+                ? "12 AM"
+                : hour === 12
+                ? "12 PM"
+                : hour > 12
+                ? `${hour - 12} PM`
+                : `${hour} AM`}
             </div>
           </div>
-          <div className="flex-1 border-r border-gray-100/70 p-2 bg-white/80">
-            {dayEvents.map((event, idx) => (
-              <div 
-                key={idx} 
-                className="text-xs p-2 my-1 bg-blue-50/90 rounded-lg text-blue-700 flex items-center shadow-sm"
+
+          {/* Day columns */}
+          {weekDays.map((day, dayIndex) => {
+            const dateStr = day.toISOString().split("T")[0];
+            const timeStr = `${String(hour).padStart(2, "0")}:00`;
+            const eventKey = `${dateStr}T${timeStr}`;
+            const dayEvents = events[eventKey] || [];
+            const isToday = day.toDateString() === today.toDateString();
+
+            return (
+              <div
+                key={dayIndex}
+                className={`col-span-1 border-r border-gray-200/60 p-2 relative cursor-pointer transition-all duration-300 ${
+                  isToday
+                    ? "bg-gradient-to-b from-blue-50/30 to-purple-50/30"
+                    : "hover:bg-gradient-to-b hover:from-blue-50/20 hover:to-purple-50/20"
+                }`}
+                onClick={() =>
+                  handleOpenModal && handleOpenModal(dateStr, timeStr)
+                }
               >
-                <div className="w-2 h-2 bg-blue-400 rounded-full mr-1.5"></div>
-                <span className="truncate">{event.title}</span>
-                {event.time && (
-                  <span className="ml-auto text-blue-500 text-[10px] bg-blue-100/50 px-1.5 py-0.5 rounded-md">
-                    {formatTime(parseInt(event.time.split(':')[0]))}
-                  </span>
+                {/* Events display */}
+                {dayEvents.map((event, idx) => (
+                  <div
+                    key={idx}
+                    className="mb-1 p-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-xs rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 cursor-pointer border border-white/20"
+                  >
+                    <div className="font-bold truncate">{event.title}</div>
+                    <div className="text-xs opacity-80">{event.time}</div>
+                  </div>
+                ))}
+
+                {/* Add event overlay */}
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                  <div className="bg-white/90 backdrop-blur-sm rounded-full p-2 shadow-lg">
+                    <Plus className="w-4 h-4 text-blue-600" />
+                  </div>
+                </div>
+
+                {/* Current time indicator */}
+                {isCurrentHour && isToday && (
+                  <div
+                    className="absolute left-0 right-0 flex items-center pointer-events-none z-20"
+                    style={{ top: `${(new Date().getMinutes() / 60) * 100}%` }}
+                  >
+                    <div className="w-3 h-3 bg-red-500 rounded-full shadow-lg animate-pulse"></div>
+                    <div className="h-0.5 flex-1 bg-gradient-to-r from-red-500 to-red-400"></div>
+                  </div>
                 )}
               </div>
-            ))}
-            <button 
-              className="w-full h-6 mt-1 text-xs text-gray-400 flex items-center justify-center bg-gray-50/70 rounded-lg shadow-sm"
-              onClick={() => handleOpenModal(dateStr)}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3 h-3 mr-1">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-              </svg>
-              Add
-            </button>
-          </div>
+            );
+          })}
         </div>
-      )
+      );
     }
-    
-    return weekDays
-  }
+
+    return slots;
+  };
 
   return (
-    <div className="flex h-full w-full border-t">
-      {generateWeekView()}
+    <div className="w-full h-full flex flex-col bg-transparent relative overflow-hidden">
+      {/* Cosmic floating background elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 right-20 w-96 h-96 bg-gradient-to-br from-blue-200/10 to-purple-200/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-40 left-20 w-80 h-80 bg-gradient-to-br from-pink-200/10 to-indigo-200/10 rounded-full blur-3xl animate-pulse animation-delay-2000"></div>
+        <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-gradient-to-br from-green-200/10 to-teal-200/10 rounded-full blur-3xl animate-pulse animation-delay-4000"></div>
+        <div className="absolute top-32 left-1/4 w-48 h-48 bg-gradient-to-br from-amber-200/10 to-orange-200/10 rounded-full blur-3xl animate-pulse animation-delay-1000"></div>
+        <div className="absolute bottom-20 right-1/3 w-56 h-56 bg-gradient-to-br from-violet-200/10 to-rose-200/10 rounded-full blur-3xl animate-pulse animation-delay-3000"></div>
+      </div>
+
+      {/* Ultra-futuristic floating header */}
+      <div className="sticky top-0 z-30 px-6 pt-6 pb-4">
+        <div className="bg-white/10 backdrop-blur-3xl rounded-[2rem] p-8 shadow-[0_25px_60px_rgba(8,_112,_184,_0.8)] border border-white/30 relative overflow-hidden">
+          {/* Holographic overlay */}
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 animate-gradient-x"></div>
+
+          <div className="flex items-center justify-between relative z-10">
+            <div className="flex items-center space-x-8">
+              <div className="relative group">
+                <h1 className="text-5xl font-black bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent drop-shadow-2xl">
+                  Week of{" "}
+                  {(weekStartDate || today).toLocaleDateString("en-US", {
+                    month: "long",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+                </h1>
+                <div className="absolute -bottom-2 left-0 w-full h-2 bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 rounded-full transform origin-left group-hover:scale-x-100 scale-x-0 transition-transform duration-700"></div>
+
+                {/* Floating decorative elements */}
+                <div className="absolute -top-4 -right-4 w-8 h-8 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full animate-bounce shadow-2xl"></div>
+                <div className="absolute -bottom-2 -left-2 w-6 h-6 bg-gradient-to-r from-green-400 to-teal-500 rounded-full animate-pulse shadow-xl"></div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-6">
+              <ViewSelector currentView={viewMode} setViewMode={setViewMode} />
+
+              <button
+                className="group relative px-8 py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold shadow-2xl transform transition-all duration-300 hover:scale-110 hover:shadow-emerald-500/25 overflow-hidden"
+                onClick={() => {
+                  const today = new Date();
+                  setWeekStartDate && setWeekStartDate(getWeekStart(today));
+                }}
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                <span className="relative z-10 flex items-center gap-2">
+                  <span className="text-xl animate-bounce">✨</span>
+                  Today
+                </span>
+              </button>
+
+              <div className="flex bg-white/20 backdrop-blur-xl rounded-2xl shadow-lg overflow-hidden p-1">
+                <button
+                  onClick={() => navigateWeek("prev")}
+                  className="p-4 text-gray-700 hover:bg-gradient-to-r hover:from-blue-500 hover:to-purple-600 hover:text-white transition-all duration-300 group rounded-xl"
+                >
+                  <ChevronLeft className="w-6 h-6 transform group-hover:scale-110 transition-transform duration-200" />
+                </button>
+                <button
+                  onClick={() => navigateWeek("next")}
+                  className="p-4 text-gray-700 hover:bg-gradient-to-r hover:from-blue-500 hover:to-purple-600 hover:text-white transition-all duration-300 group rounded-xl"
+                >
+                  <ChevronRight className="w-6 h-6 transform group-hover:scale-110 transition-transform duration-200" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Enhanced week days header */}
+      <div className="sticky top-[140px] z-20 bg-white/80 backdrop-blur-xl border-b border-gray-200/50 shadow-lg">
+        <div className="grid grid-cols-8 py-4">
+          {/* Time column header */}
+          <div className="col-span-1 flex items-center justify-center border-r border-gray-200/60">
+            <div className="text-sm font-bold text-gray-600">Time</div>
+          </div>
+
+          {/* Day headers */}
+          {weekDays.map((day, index) => {
+            const isToday = day.toDateString() === today.toDateString();
+            const dayEvents = Object.keys(events).filter((key) =>
+              key.startsWith(day.toISOString().split("T")[0])
+            ).length;
+
+            return (
+              <div
+                key={index}
+                className={`col-span-1 text-center border-r border-gray-200/60 p-4 cursor-pointer transition-all duration-300 hover:bg-gradient-to-b hover:from-blue-50 hover:to-purple-50 relative group ${
+                  isToday ? "bg-gradient-to-b from-blue-100/50 to-purple-100/50" : ""
+                }`}
+                onClick={() =>
+                  handleDayClick && handleDayClick(day.toISOString().split("T")[0])
+                }
+              >
+                <div
+                  className={`text-sm font-bold ${
+                    isToday ? "text-blue-600" : "text-gray-600"
+                  } mb-1`}
+                >
+                  {day.toLocaleDateString("en-US", { weekday: "short" })}
+                </div>
+                <div
+                  className={`text-2xl font-black ${
+                    isToday ? "text-blue-700" : "text-gray-800"
+                  } relative`}
+                >
+                  {day.getDate()}
+                  {isToday && (
+                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full animate-pulse"></div>
+                  )}
+                </div>
+                <div className="text-xs text-gray-500 mt-1">
+                  {day.toLocaleDateString("en-US", { month: "short" })}
+                </div>
+
+                {/* Event count indicator */}
+                {dayEvents > 0 && (
+                  <div className="absolute top-2 right-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold shadow-lg animate-bounce">
+                    {dayEvents}
+                  </div>
+                )}
+
+                {/* Hover effect */}
+                <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg"></div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Enhanced time slots grid */}
+      <div className="flex-1 overflow-y-auto bg-gradient-to-br from-white/50 via-gray-50/30 to-blue-50/30 backdrop-blur-sm relative">
+        {/* Floating background pattern */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_25%,rgba(59,130,246,0.5),transparent_50%)]"></div>
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_75%,rgba(168,85,247,0.5),transparent_50%)]"></div>
+        </div>
+
+        <div className="relative z-10">{generateTimeSlots()}</div>
+      </div>
+
+      {/* Enhanced floating action button */}
+      <div className="fixed right-8 bottom-8 z-40">
+        <button
+          onClick={() => {
+            const today = new Date();
+            handleOpenModal && handleOpenModal(today.toISOString().split("T")[0], "09:00");
+          }}
+          className="group relative w-20 h-20 bg-gradient-to-r from-blue-500 via-purple-600 to-pink-500 rounded-3xl flex items-center justify-center shadow-[0_20px_40px_rgba(59,130,246,0.4)] transform transition-all duration-500 hover:scale-125 hover:rotate-90 hover:shadow-[0_25px_50px_rgba(59,130,246,0.6)] focus:outline-none focus:ring-4 focus:ring-blue-300/50 animate-float overflow-hidden"
+        >
+          {/* Holographic overlay */}
+          <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+
+          <Plus className="w-8 h-8 text-white group-hover:scale-110 transition-transform duration-200 relative z-10" />
+
+          {/* Orbiting particles */}
+          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+            {[...Array(6)].map((_, i) => (
+              <div
+                key={i}
+                className="absolute w-2 h-2 bg-white/60 rounded-full animate-orbit"
+                style={{
+                  animationDelay: `${i * 200}ms`,
+                  animationDuration: "3s",
+                }}
+              />
+            ))}
+          </div>
+        </button>
+      </div>
+
+      {/* Weekly stats floating card */}
+      <div className="fixed bottom-8 left-8 z-30">
+        <div className="bg-white/90 backdrop-blur-2xl rounded-2xl p-4 shadow-2xl border border-white/50 transform transition-all duration-300 hover:scale-105">
+          <div className="text-center space-y-2">
+            <div className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              {
+                Object.keys(events).filter((key) => {
+                  const eventDate = new Date(key.split("T")[0]);
+                  return weekDays.some(
+                    (day) => day.toDateString() === eventDate.toDateString()
+                  );
+                }).length
+              }
+            </div>
+            <div className="text-xs text-gray-600">Events This Week</div>
+          </div>
+        </div>
+      </div>
     </div>
-  )
+  );
 }

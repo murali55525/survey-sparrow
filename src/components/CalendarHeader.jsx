@@ -1,19 +1,27 @@
 import React from 'react'
 
-// Use props for all state and handlers needed from CalendarApp
-export default function CalendarHeader(props) {
-  const {
-    viewMode,
-    setViewMode,
-    viewYear,
-    viewMonth,
-    dayViewDate,
-    sidebarOpen,
-    setSidebarOpen,
-    today,
-    handlePrevMonth,
-    handleNextMonth,
-  } = props
+// Destructure all props directly in the function signature, and remove the inner destructuring
+export default function CalendarHeader({
+  setViewMonth,
+  setViewYear,
+  setViewMode,
+  today,
+  viewMode,
+  viewYear,
+  viewMonth,
+  dayViewDate,
+  sidebarOpen,
+  setSidebarOpen,
+  handlePrevMonth,
+  handleNextMonth,
+}) {
+  const handleGoToToday = () => {
+    if (setViewYear && setViewMonth && setViewMode && today) {
+      setViewYear(today.getFullYear());
+      setViewMonth(today.getMonth());
+      setViewMode('month');
+    }
+  };
 
   return (
     <div className="flex items-center justify-between border-b border-gray-100 px-5 py-3 shrink-0 bg-white/90 backdrop-blur-sm shadow-sm">
@@ -21,7 +29,7 @@ export default function CalendarHeader(props) {
         {/* Sidebar toggle for mobile - matte styling */}
         <button 
           className="md:hidden p-2 rounded-xl text-gray-600 bg-gray-50/80"
-          onClick={() => setSidebarOpen(!sidebarOpen)}
+          onClick={() => setSidebarOpen && setSidebarOpen(!sidebarOpen)}
         >
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
             <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
@@ -31,12 +39,7 @@ export default function CalendarHeader(props) {
         {/* Today button - matte styling */}
         <button 
           className="px-5 py-2 rounded-xl text-sm bg-white border border-gray-200 text-gray-700 shadow-sm"
-          onClick={() => {
-            setViewMonth(today.getMonth())
-            setViewYear(today.getFullYear())
-            setDayViewDate(getDateStr(today.getDate()))
-            setViewMode('day')
-          }}
+          onClick={handleGoToToday}
         >
           Today
         </button>

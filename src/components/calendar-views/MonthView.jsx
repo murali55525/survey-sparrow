@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, Plus, X, Clock, MapPin, User, Star, ChevronLeft, ChevronRight } from 'lucide-react';
+import ViewSelector from '../ViewSelector';
 
 // Utility functions (mock implementations)
 const getDaysInMonth = (year, month) => new Date(year, month + 1, 0).getDate();
 const getFirstDayOfWeek = (year, month) => new Date(year, month, 1).getDay();
 const getDateStr = (year, month, day) => `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 
-export default function EnhancedMonthView() {
+export default function MonthView({ 
+  viewMode, 
+  setViewMode, 
+  ...props 
+}) {
   const [today] = useState(new Date());
   const [viewMonth, setViewMonth] = useState(today.getMonth());
   const [viewYear, setViewYear] = useState(today.getFullYear());
@@ -32,22 +37,22 @@ export default function EnhancedMonthView() {
   const [newEventCategory, setNewEventCategory] = useState('personal');
   const [hoveredDay, setHoveredDay] = useState(null);
 
-  // Replace colored backgrounds with white
+  // Enhanced colorful styling
   const dayColors = {
-    today: 'bg-white border-2 border-gray-400 text-gray-800',
-    weekend: 'bg-white text-gray-800',
-    weekday: 'bg-white text-gray-800',
-    otherMonth: 'bg-white text-gray-400',
-    hasEvents: 'border border-gray-300',
+    today: 'bg-gradient-to-br from-blue-500 to-purple-600 text-white shadow-xl ring-4 ring-blue-200 transform scale-105',
+    weekend: 'bg-gradient-to-br from-rose-50 to-pink-50 text-rose-600 hover:from-rose-100 hover:to-pink-100',
+    weekday: 'bg-white hover:bg-gradient-to-br hover:from-blue-50 hover:to-indigo-50 transition-all duration-200',
+    otherMonth: 'bg-gray-50/60 text-gray-400',
+    hasEvents: 'ring-2 ring-blue-400/30',
   };
 
   const categoryColors = {
-    work: 'bg-white text-gray-800 border-l-2 border-gray-400',
-    personal: 'bg-white text-gray-800 border-l-2 border-gray-400',
-    holiday: 'bg-white text-gray-800 border-l-2 border-gray-400',
-    health: 'bg-white text-gray-800 border-l-2 border-gray-400',
-    social: 'bg-white text-gray-800 border-l-2 border-gray-400',
-    travel: 'bg-white text-gray-800 border-l-2 border-gray-400',
+    work: 'bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 border-l-4 border-blue-500 shadow-sm',
+    personal: 'bg-gradient-to-r from-green-100 to-emerald-200 text-green-800 border-l-4 border-green-500 shadow-sm',
+    holiday: 'bg-gradient-to-r from-red-100 to-rose-200 text-red-800 border-l-4 border-red-500 shadow-sm',
+    health: 'bg-gradient-to-r from-purple-100 to-violet-200 text-purple-800 border-l-4 border-purple-500 shadow-sm',
+    social: 'bg-gradient-to-r from-amber-100 to-yellow-200 text-amber-800 border-l-4 border-amber-500 shadow-sm',
+    travel: 'bg-gradient-to-r from-cyan-100 to-teal-200 text-cyan-800 border-l-4 border-cyan-500 shadow-sm',
   };
 
   const priorityIcons = {
@@ -214,92 +219,143 @@ export default function EnhancedMonthView() {
   };
 
   return (
-    <div className="w-full h-full flex flex-col bg-white rounded-xl shadow overflow-hidden">
-      {/* Header with white background */}
-      <div className="bg-white text-gray-800 p-6 border-b border-gray-200">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Calendar className="w-8 h-8 text-gray-600" />
-            <h1 className="text-3xl font-bold">
-              {monthNames[viewMonth]} {viewYear}
-            </h1>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => navigateMonth('prev')}
-              className="p-2 rounded-lg bg-white border border-gray-200"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-            <button
-              onClick={() => navigateMonth('next')}
-              className="p-2 rounded-lg bg-white border border-gray-200"
-            >
-              <ChevronRight className="w-5 h-5" />
-            </button>
+    <div className="w-full h-full flex flex-col bg-transparent overflow-hidden relative">
+      {/* Cosmic floating background elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 right-20 w-96 h-96 bg-gradient-to-br from-blue-200/10 to-purple-200/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-40 left-20 w-80 h-80 bg-gradient-to-br from-pink-200/10 to-indigo-200/10 rounded-full blur-3xl animate-pulse animation-delay-2000"></div>
+        <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-gradient-to-br from-green-200/10 to-teal-200/10 rounded-full blur-3xl animate-pulse animation-delay-4000"></div>
+        <div className="absolute top-32 left-1/4 w-48 h-48 bg-gradient-to-br from-amber-200/10 to-orange-200/10 rounded-full blur-3xl animate-pulse animation-delay-1000"></div>
+        <div className="absolute bottom-20 right-1/3 w-56 h-56 bg-gradient-to-br from-violet-200/10 to-rose-200/10 rounded-full blur-3xl animate-pulse animation-delay-3000"></div>
+      </div>
+
+      {/* Ultra-futuristic floating header */}
+      <div className="sticky top-0 z-30 px-6 pt-6 pb-4">
+        <div className="bg-white/10 backdrop-blur-3xl rounded-[2rem] p-8 shadow-[0_25px_60px_rgba(8,_112,_184,_0.8)] border border-white/30 relative overflow-hidden">
+          {/* Holographic overlay */}
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 animate-gradient-x"></div>
+          
+          <div className="flex items-center justify-between relative z-10">
+            <div className="flex items-center space-x-8">
+              <div className="relative group">
+                <h1 className="text-5xl font-black bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent drop-shadow-2xl">
+                  {new Date(viewYear, viewMonth).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                </h1>
+                <div className="absolute -bottom-2 left-0 w-full h-2 bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 rounded-full transform origin-left group-hover:scale-x-100 scale-x-0 transition-transform duration-700"></div>
+                
+                {/* Floating decorative elements */}
+                <div className="absolute -top-4 -right-4 w-8 h-8 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full animate-bounce shadow-2xl"></div>
+                <div className="absolute -bottom-2 -left-2 w-6 h-6 bg-gradient-to-r from-green-400 to-teal-500 rounded-full animate-pulse shadow-xl"></div>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-6">
+              <ViewSelector currentView={viewMode} setViewMode={setViewMode} />
+              
+              <button
+                className="group relative px-8 py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold shadow-2xl transform transition-all duration-300 hover:scale-110 hover:shadow-emerald-500/25 overflow-hidden"
+                onClick={() => {
+                  const today = new Date();
+                  setViewMonth(today.getMonth());
+                  setViewYear(today.getFullYear());
+                }}
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                <span className="relative z-10 flex items-center gap-2">
+                  <span className="text-xl animate-bounce">✨</span>
+                  Today
+                </span>
+              </button>
+              
+              <div className="flex bg-white/20 backdrop-blur-xl rounded-2xl shadow-lg overflow-hidden p-1">
+                <button
+                  onClick={() => navigateMonth('prev')}
+                  className="p-4 text-gray-700 hover:bg-gradient-to-r hover:from-blue-500 hover:to-purple-600 hover:text-white transition-all duration-300 group rounded-xl"
+                >
+                  <ChevronLeft className="w-6 h-6 transform group-hover:scale-110 transition-transform duration-200" />
+                </button>
+                <button
+                  onClick={() => navigateMonth('next')}
+                  className="p-4 text-gray-700 hover:bg-gradient-to-r hover:from-blue-500 hover:to-purple-600 hover:text-white transition-all duration-300 group rounded-xl"
+                >
+                  <ChevronRight className="w-6 h-6 transform group-hover:scale-110 transition-transform duration-200" />
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Weekdays Header - change text-red-600 to text-gray-600 */}
-      <div className="grid grid-cols-7 bg-white border-b border-gray-200">
+      {/* Ultra-modern weekdays header */}
+      <div className="grid grid-cols-7 bg-gradient-to-r from-white/80 via-white/90 to-white/80 backdrop-blur-xl border-b border-gray-200/50 sticky top-[140px] z-20 shadow-lg">
         {['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].map((day, idx) => (
-          <div key={day} className={`text-center py-4 font-semibold ${
-            idx === 0 || idx === 6 ? 'text-gray-600' : 'text-gray-700' /* changed from text-red-600 */
+          <div key={day + idx} className={`text-center py-6 font-black text-lg transition-all duration-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 relative group ${
+            idx === 0 || idx === 6 ? 'text-red-500' : 'text-gray-800'
           }`}>
-            <div className="text-sm">{day}</div>
-            <div className="text-xs opacity-75">{day.slice(0, 3)}</div>
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent to-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div className="relative z-10">
+              <div className="text-xl font-black">{day}</div>
+              <div className="text-xs opacity-75 mt-1 font-semibold">{day.slice(0, 3)}</div>
+            </div>
           </div>
         ))}
       </div>
 
-      {/* Calendar Grid */}
-      <div className="grid grid-cols-7 flex-1 bg-white">
+      {/* Revolutionary calendar grid */}
+      <div className="grid grid-cols-7 flex-1 bg-gradient-to-br from-white/50 via-gray-50/50 to-blue-50/50 backdrop-blur-sm relative overflow-hidden">
+        {/* Floating background pattern */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_25%,rgba(59,130,246,0.5),transparent_50%)]"></div>
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_75%,rgba(168,85,247,0.5),transparent_50%)]"></div>
+        </div>
+        
         {renderCalendarCells()}
       </div>
 
-      {/* Modal for adding events */}
+      {/* Enhanced modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow p-6 w-full max-w-md">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-bold text-gray-800">Add Event</h3>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="text-gray-500"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-            
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Event Title</label>
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl p-0 w-full max-w-md overflow-hidden border border-gray-200/50 transform animate-in zoom-in-95 duration-200">
+            {/* Enhanced modal header */}
+            <div className="bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-4">
+              <div className="flex items-center">
+                <div className="w-4 h-12 bg-white/20 rounded-full mr-4"></div>
                 <input
                   type="text"
                   value={newEventTitle}
                   onChange={(e) => setNewEventTitle(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none"
-                  placeholder="Enter event title..."
+                  className="text-xl bg-transparent border-none w-full text-white placeholder-white/70 focus:outline-none"
+                  placeholder="Add event title..."
                 />
               </div>
+            </div>
+            
+            {/* Enhanced modal body */}
+            <div className="p-6 space-y-6">
+              <div className="flex items-center space-x-4">
+                <Calendar className="w-5 h-5 text-blue-500" />
+                <div className="text-sm font-medium text-gray-700">{selectedDate}</div>
+              </div>
               
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Time</label>
+              <div className="flex items-center space-x-4">
+                <Clock className="w-5 h-5 text-purple-500" />
                 <input
                   type="time"
                   value={newEventTime}
                   onChange={(e) => setNewEventTime(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none"
+                  className="bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
                 />
               </div>
               
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+              <div className="flex items-center space-x-4">
+                <div className="w-5 h-5 flex items-center justify-center">
+                  <span className="block w-3 h-3 rounded-full bg-gradient-to-r from-amber-400 to-orange-500"></span>
+                </div>
                 <select
                   value={newEventCategory}
                   onChange={(e) => setNewEventCategory(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none appearance-none"
+                  className="bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
                 >
                   <option value="personal">Personal</option>
                   <option value="work">Work</option>
@@ -311,23 +367,37 @@ export default function EnhancedMonthView() {
               </div>
             </div>
             
-            <div className="flex gap-3 mt-6">
-              <button
-                onClick={handleAddEvent}
-                className="flex-1 bg-gray-200 text-gray-800 py-2 px-4 rounded border border-gray-300"
-              >
-                Add Event
-              </button>
+            {/* Enhanced modal footer */}
+            <div className="px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-t border-gray-200/50 flex gap-3">
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="flex-1 bg-white text-gray-800 py-2 px-4 rounded border border-gray-300"
+                className="flex-1 px-6 py-3 text-gray-700 bg-white rounded-xl border border-gray-200 font-semibold transition-all duration-200 hover:bg-gray-50"
               >
                 Cancel
+              </button>
+              <button
+                onClick={handleAddEvent}
+                className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl font-semibold shadow-lg transition-all duration-200 hover:shadow-xl transform hover:scale-105"
+              >
+                Save Event
               </button>
             </div>
           </div>
         </div>
       )}
+      
+      {/* Enhanced floating action button */}
+      <div className="fixed right-8 bottom-8">
+        <button
+          onClick={() => {
+            setSelectedDate(getDateStr(viewYear, viewMonth, new Date().getDate()));
+            setIsModalOpen(true);
+          }}
+          className="bg-gradient-to-r from-blue-500 to-purple-600 shadow-2xl rounded-full p-4 flex items-center justify-center transform transition-all duration-200 hover:scale-110 hover:shadow-3xl focus:outline-none focus:ring-4 focus:ring-blue-300/50"
+        >
+          <Plus className="w-6 h-6 text-white" />
+        </button>
+      </div>
     </div>
   );
 }

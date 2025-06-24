@@ -1,17 +1,22 @@
 import React from 'react';
 import { formatTime } from '../../utils/dateUtils';
+import ViewSelector from '../ViewSelector';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 export default function DayView({
   dayViewDate,
-  events,
-  currentTime,
-  handleOpenModal,
-  handleDeleteEvent,
-  handleDayClick,
-  tasks,
-  handleToggleTaskCompletion,
-  handleDeleteTask,
+  setDayViewDate,
+  viewMode,
+  setViewMode,
+  events = {},
+  setEvents,
+  today,
+  tasks = [],
+  ...props
 }) {
+  // Always ensure dayViewDate is a Date object
+  const currentDate = dayViewDate instanceof Date ? dayViewDate : new Date(dayViewDate);
+
   // Error handling for missing date
   if (!dayViewDate) {
     return (
@@ -27,7 +32,7 @@ export default function DayView({
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
-            d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 0 0121 11.25v7.5"
+            d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"
           />
         </svg>
         <h2 className="text-lg font-normal text-gray-700 mb-2">Please select a date</h2>
@@ -208,214 +213,223 @@ export default function DayView({
     return slots;
   };
 
+  const formatDate = (date) => {
+    const d = (date instanceof Date) ? date : new Date(date)
+    return d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+  };
+
+  const navigateDay = (direction) => {
+    const newDate = new Date(dayViewDate);
+    if (direction === 'prev') {
+      newDate.setDate(newDate.getDate() - 1);
+    } else {
+      newDate.setDate(newDate.getDate() + 1);
+    }
+    setDayViewDate(newDate);
+  };
+
+  // Get events for the current day
+  const dayEvents = events[
+    currentDate && typeof currentDate.toISOString === 'function'
+      ? currentDate.toISOString().split('T')[0]
+      : new Date().toISOString().split('T')[0]
+  ] || [];
+
+  // Defensive: Only call setDayViewDate if it's a function
+  const handleGoToToday = () => {
+    if (typeof setDayViewDate === 'function') {
+      setDayViewDate(new Date());
+    }
+  };
+
   return (
-    <div className="w-full h-screen flex flex-col bg-white">
-      {/* Header - Colorful Google Calendar style */}
-      <div className="border-b border-gray-200 bg-gradient-to-r from-white to-gray-50 sticky top-0 z-30">
-        {/* Date navigation */}
-        <div className="px-4 h-16 flex justify-between items-center">
-          <div className="flex items-center">
-            <h2 className="text-xl font-normal text-gray-800">{dateDisplay}</h2>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              className="text-sm px-4 py-2 rounded hover:bg-gray-100 text-blue-600 font-medium"
-              onClick={() => {
-                const todayStr = new Date().toISOString().split('T')[0];
-                handleDayClick(todayStr);
-              }}
-            >
-              Today
-            </button>
-            <div className="flex gap-1">
+    <div className="w-full h-full flex flex-col bg-transparent relative overflow-hidden">
+      {/* Cosmic floating background elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 right-20 w-96 h-96 bg-gradient-to-br from-blue-200/10 to-purple-200/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-40 left-20 w-80 h-80 bg-gradient-to-br from-pink-200/10 to-indigo-200/10 rounded-full blur-3xl animate-pulse animation-delay-2000"></div>
+        <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-gradient-to-br from-green-200/10 to-teal-200/10 rounded-full blur-3xl animate-pulse animation-delay-4000"></div>
+      </div>
+
+      {/* Ultra-futuristic floating header */}
+      <div className="sticky top-0 z-30 px-6 pt-6 pb-4">
+        <div className="bg-white/10 backdrop-blur-3xl rounded-[2rem] p-8 shadow-[0_25px_60px_rgba(8,_112,_184,_0.8)] border border-white/30 relative overflow-hidden">
+          {/* Holographic overlay */}
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 animate-gradient-x"></div>
+          
+          <div className="flex items-center justify-between relative z-10">
+            <div className="flex items-center space-x-8">
+              <div className="relative group">
+                <h1 className="text-5xl font-black bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent drop-shadow-2xl">
+                  {formatDate(currentDate)}
+                </h1>
+                <div className="absolute -bottom-2 left-0 w-full h-2 bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 rounded-full transform origin-left group-hover:scale-x-100 scale-x-0 transition-transform duration-700"></div>
+                
+                {/* Floating decorative elements */}
+                <div className="absolute -top-4 -right-4 w-8 h-8 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full animate-bounce shadow-2xl"></div>
+                <div className="absolute -bottom-2 -left-2 w-6 h-6 bg-gradient-to-r from-green-400 to-teal-500 rounded-full animate-pulse shadow-xl"></div>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-6">
               <button
-                className="p-2 hover:bg-gray-100 rounded-full"
-                onClick={() => {
-                  const prevDay = new Date(dateObj);
-                  prevDay.setDate(prevDay.getDate() - 1);
-                  const prevDayStr = prevDay.toISOString().split('T')[0];
-                  handleDayClick(prevDayStr);
-                }}
+                className="group relative px-8 py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold shadow-2xl transform transition-all duration-300 hover:scale-110 hover:shadow-emerald-500/25 overflow-hidden"
+                onClick={handleGoToToday}
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={2}
-                  stroke="currentColor"
-                  className="w-4 h-4 text-gray-600"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M15.75 19.5L8.25 12l7.5-7.5"
-                  />
-                </svg>
+                <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                <span className="relative z-10 flex items-center gap-2">
+                  <span className="text-xl animate-bounce">✨</span>
+                  Today
+                </span>
               </button>
-              <button
-                className="p-2 hover:bg-gray-100 rounded-full"
-                onClick={() => {
-                  const nextDay = new Date(dateObj);
-                  nextDay.setDate(nextDay.getDate() + 1);
-                  const nextDayStr = nextDay.toISOString().split('T')[0];
-                  handleDayClick(nextDayStr);
-                }}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={2}
-                  stroke="currentColor"
-                  className="w-4 h-4 text-gray-600"
+              
+              <div className="flex bg-white/20 backdrop-blur-xl rounded-2xl shadow-lg overflow-hidden p-1">
+                <button
+                  onClick={() => navigateDay('prev')}
+                  className="p-4 text-gray-700 hover:bg-gradient-to-r hover:from-blue-500 hover:to-purple-600 hover:text-white transition-all duration-300 group rounded-xl"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M8.25 4.5l7.5 7.5-7.5 7.5"
-                  />
-                </svg>
-              </button>
+                  <ChevronLeft className="w-6 h-6 transform group-hover:scale-110 transition-transform duration-200" />
+                </button>
+                <button
+                  onClick={() => navigateDay('next')}
+                  className="p-4 text-gray-700 hover:bg-gradient-to-r hover:from-blue-500 hover:to-purple-600 hover:text-white transition-all duration-300 group rounded-xl"
+                >
+                  <ChevronRight className="w-6 h-6 transform group-hover:scale-110 transition-transform duration-200" />
+                </button>
+              </div>
             </div>
           </div>
         </div>
-
-        {/* Day indicator */}
-        <div className="pl-16 pr-4 flex items-center border-t border-gray-200 h-14">
-          <div className="flex items-center justify-center flex-col w-14 h-14">
-            <span className="text-xs font-medium uppercase text-gray-600">{dayOfWeek}</span>
-            <span className="text-2xl font-normal text-gray-800">{dayNumber}</span>
-          </div>
-        </div>
       </div>
-
-      {/* Time grid container */}
-      <div className="flex-1 min-h-0 overflow-y-auto">
-        {/* All-day events section */}
-        {allDayEvents.length > 0 && (
-          <div className="pl-12 pr-4 py-2 border-b border-gray-200">
-            {allDayEvents.map((event, idx) => (
-              <div
-                key={idx}
-                className="flex justify-between items-center py-1 px-3 mb-1 bg-blue-100 border-l-4 border-blue-600 text-blue-800 text-xs rounded-sm"
-                style={{ borderRadius: '0 3px 3px 0' }}
-              >
-                <span className="font-medium">{event.title}</span>
-                <button
-                  onClick={() => handleDeleteEvent(dayViewDate, idx)}
-                  className="text-gray-500 hover:text-gray-700 p-1 opacity-0 hover:opacity-100 transition-opacity"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={2}
-                    stroke="currentColor"
-                    className="w-3 h-3"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Tasks section */}
-        {dayTasks.length > 0 && (
-          <div className="pl-12 pr-4 py-2 border-b border-gray-200">
-            {dayTasks.map((task) => (
-              <div
-                key={task.id}
-                className="flex justify-between items-center py-1 px-3 mb-1 bg-green-50 text-gray-700 text-xs border-l-4 border-green-600 rounded-sm"
-                style={{ borderRadius: '0 3px 3px 0' }}
-              >
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    checked={task.completed}
-                    onChange={() => handleToggleTaskCompletion(dayViewDate, task.id)}
-                    className="mr-2 h-3 w-3 rounded text-green-600"
-                  />
-                  <span className={task.completed ? 'line-through text-gray-500' : ''}>
-                    {task.title}
-                  </span>
+      
+      {/* Revolutionary day content with holographic time slots */}
+      <div className="flex-1 overflow-y-auto px-6 pb-6 relative z-10">
+        <div className="max-w-7xl mx-auto">
+          {/* Enhanced events summary with 3D effects */}
+          {dayEvents.length > 0 && (
+            <div className="mb-8 bg-white/20 backdrop-blur-3xl rounded-[2rem] p-8 border border-white/30 shadow-[0_20px_40px_rgba(0,0,0,0.1)] animate-slide-up relative overflow-hidden">
+              {/* Holographic background */}
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-purple-50/50 opacity-50"></div>
+              
+              <h2 className="text-3xl font-black text-gray-800 mb-6 flex items-center gap-4 relative z-10">
+                <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-2xl">
+                  <span className="text-white text-lg">📅</span>
                 </div>
-                <button
-                  onClick={() => handleDeleteTask(dayViewDate, task.id)}
-                  className="text-gray-400 hover:text-gray-700 p-1 opacity-0 hover:opacity-100 transition-opacity"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={2}
-                    stroke="currentColor"
-                    className="w-3 h-3"
+                Today's Events
+                <div className="flex-1 h-px bg-gradient-to-r from-blue-500 to-purple-600 opacity-30"></div>
+              </h2>
+              
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 relative z-10">
+                {dayEvents.map((event, idx) => (
+                  <div 
+                    key={idx} 
+                    className="group p-6 bg-gradient-to-br from-white/80 to-blue-50/80 rounded-2xl border border-blue-200/30 hover:shadow-2xl transform hover:scale-105 transition-all duration-500 backdrop-blur-lg relative overflow-hidden"
+                    style={{ animationDelay: `${idx * 150}ms` }}
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
+                    {/* Floating background effect */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-blue-100/20 to-purple-100/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    
+                    <div className="flex items-center space-x-4 relative z-10">
+                      <div className="w-6 h-6 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full animate-pulse shadow-lg"></div>
+                      <div className="flex-1">
+                        <div className="font-bold text-gray-800 group-hover:text-blue-700 transition-colors duration-200 text-lg">{event.title}</div>
+                        <div className="text-sm text-gray-600 mt-1 font-semibold">{event.time} • {event.category}</div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        )}
-
-        {/* Time slots */}
-        <div className="relative">
-          {/* Current time jump button */}
-          {currentTime.toDateString() === new Date(dayViewDate || '').toDateString() && (
-            <div className="sticky top-0 z-10 flex justify-end py-2 px-4 bg-white/95 border-b border-gray-100">
-              <button
-                className="text-xs px-3 py-1.5 bg-blue-50 text-blue-600 rounded hover:bg-blue-100 flex items-center font-medium"
-                onClick={() => {
-                  const hourElement = document.getElementById(`hour-${currentTime.getHours()}`);
-                  if (hourElement) {
-                    hourElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                  }
-                }}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={1.5}
-                  stroke="currentColor"
-                  className="w-3.5 h-3.5 mr-1"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                  />
-                </svg>
-                Current time
-              </button>
             </div>
           )}
 
-          {/* Time grid */}
-          {generateTimeSlots()}
+          {/* Ultra-futuristic time slots grid */}
+          <div className="grid gap-6 lg:gap-8">
+            {Array.from({ length: 24 }, (_, hour) => (
+              <div 
+                key={hour} 
+                className="group flex flex-col sm:flex-row items-start space-y-4 sm:space-y-0 sm:space-x-8 animate-slide-up"
+                style={{ animationDelay: `${hour * 50}ms` }}
+              >
+                {/* Holographic time display */}
+                <div className="w-full sm:w-32 text-center sm:text-right">
+                  <div className="inline-flex items-center justify-center w-28 h-16 bg-gradient-to-br from-white/60 to-gray-100/60 rounded-2xl group-hover:from-blue-100/60 group-hover:to-purple-100/60 transition-all duration-500 backdrop-blur-lg border border-white/40 shadow-lg group-hover:shadow-2xl transform group-hover:scale-110">
+                    <span className="text-xl font-black text-gray-700 group-hover:text-blue-700 transition-colors duration-300">
+                      {hour === 0 ? '12 AM' : hour === 12 ? '12 PM' : hour > 12 ? `${hour - 12} PM` : `${hour} AM`}
+                    </span>
+                  </div>
+                </div>
+                
+                {/* Revolutionary time slot with advanced interactivity */}
+                <div className="flex-1 min-h-[100px] bg-white/40 backdrop-blur-xl rounded-3xl border border-white/50 p-8 group-hover:bg-gradient-to-r group-hover:from-blue-50/60 group-hover:to-purple-50/60 transition-all duration-500 shadow-lg hover:shadow-2xl transform hover:scale-[1.02] cursor-pointer relative overflow-hidden">
+                  {/* Holographic pattern overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-3xl"></div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                  
+                  {/* Content area with enhanced styling */}
+                  <div className="relative z-10">
+                    {/* Enhanced event display */}
+                    {dayEvents
+                      .filter(event => {
+                        const eventHour = parseInt(event.time?.split(':')[0] || '0');
+                        return eventHour === hour;
+                      })
+                      .map((event, idx) => (
+                        <div key={idx} className="mb-4 p-6 bg-gradient-to-r from-blue-100/80 to-purple-100/80 rounded-2xl border-l-4 border-blue-500 shadow-xl transform hover:scale-105 transition-all duration-300 backdrop-blur-sm">
+                          <div className="font-black text-blue-800 text-xl">{event.title}</div>
+                          <div className="text-sm text-blue-600 opacity-75 mt-2 font-semibold">{event.time} • {event.category}</div>
+                        </div>
+                      ))}
+                    
+                    {/* Enhanced empty state */}
+                    {!dayEvents.some(event => parseInt(event.time?.split(':')[0] || '0') === hour) && (
+                      <div className="flex items-center justify-center h-full min-h-[60px]">
+                        <div className="text-gray-400 text-center group-hover:text-gray-600 transition-colors duration-300">
+                          <div className="text-4xl mb-3 opacity-0 group-hover:opacity-100 transition-all duration-500 transform group-hover:scale-110">➕</div>
+                          <div className="text-lg font-semibold">No events • Click to add</div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Floating interaction indicators */}
+                  <div className="absolute top-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse shadow-lg"></div>
+                  </div>
+                  <div className="absolute bottom-6 left-6 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                    <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse shadow-lg"></div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Google Calendar's FAB with gradient */}
-      <button 
-        className="fixed bottom-6 right-6 bg-gradient-to-br from-blue-500 to-indigo-600 text-white p-4 rounded-full shadow-lg z-50 hover:shadow-xl"
-        onClick={() => handleOpenModal(dayViewDate)}
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-        </svg>
-      </button>
+      {/* Ultra-modern floating action button */}
+      <div className="fixed right-8 bottom-8 z-40">
+        <button className="group relative w-20 h-20 bg-gradient-to-r from-blue-500 via-purple-600 to-pink-500 rounded-3xl flex items-center justify-center shadow-[0_20px_40px_rgba(59,130,246,0.4)] transform transition-all duration-500 hover:scale-125 hover:rotate-90 hover:shadow-[0_25px_50px_rgba(59,130,246,0.6)] focus:outline-none focus:ring-4 focus:ring-blue-300/50 animate-float overflow-hidden">
+          {/* Holographic overlay */}
+          <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+          
+          <span className="text-white text-3xl group-hover:scale-110 transition-transform duration-200 relative z-10">➕</span>
+          
+          {/* Orbiting particles */}
+          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+            {[...Array(6)].map((_, i) => (
+              <div
+                key={i}
+                className="absolute w-2 h-2 bg-white/60 rounded-full animate-orbit"
+                style={{
+                  animationDelay: `${i * 200}ms`,
+                  animationDuration: '3s'
+                }}
+              />
+            ))}
+          </div>
+        </button>
+      </div>
     </div>
   );
 }

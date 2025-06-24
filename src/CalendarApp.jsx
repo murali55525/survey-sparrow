@@ -1,23 +1,22 @@
 import { useState, useEffect } from 'react'
 import Sidebar from './components/Sidebar'
 import CalendarHeader from './components/CalendarHeader'
-import MonthView from './components/calendar-views/MonthView'
 import DayView from './components/calendar-views/DayView'
-import WeekView from './components/calendar-views/WeekView'
+import MonthView from './components/calendar-views/MonthView'
 import YearView from './components/calendar-views/YearView'
+import WeekView from './components/calendar-views/WeekView'
 import EventModal from './components/EventModal'
 import { formatTime, getDaysInMonth, getFirstDayOfWeek, getDateStr } from './utils/dateUtils'
 
 // Constants
 const today = new Date()
 
-export default function CalendarApp() {
+export default function CalendarApp({ viewMode, setViewMode }) {
   // Core state
   const [events, setEvents] = useState({})
-  const [viewMode, setViewMode] = useState('month')
   const [viewYear, setViewYear] = useState(today.getFullYear())
   const [viewMonth, setViewMonth] = useState(today.getMonth())
-  const [dayViewDate, setDayViewDate] = useState(null)
+  const [dayViewDate, setDayViewDate] = useState(new Date())
   const [currentTime, setCurrentTime] = useState(new Date())
   const [sidebarOpen, setSidebarOpen] = useState(true)
   
@@ -198,6 +197,14 @@ export default function CalendarApp() {
     })
   }
 
+  // Handler for "Today" button in MonthView/YearView/DayView
+  const handleGoToToday = () => {
+    setViewYear(today.getFullYear())
+    setViewMonth(today.getMonth())
+    setDayViewDate(today)
+    setViewMode('day') // or 'month', depending on your default
+  }
+
   // Helper functions for date manipulation
   const getTimeRangeStr = (hour) => {
     return `${formatTime(hour, 0)} - ${formatTime(hour + 1, 0)}`;
@@ -251,6 +258,7 @@ export default function CalendarApp() {
               tasks={tasks || {}}
               handleToggleTaskCompletion={handleToggleTaskCompletion}
               handleDeleteTask={handleDeleteTask}
+              onGoToToday={handleGoToToday}
             />
           )}
           
@@ -272,6 +280,9 @@ export default function CalendarApp() {
               today={today}
               handleDayClick={handleDayClick}
               handleOpenModal={handleOpenModal}
+              viewMode={viewMode}
+              setViewMode={setViewMode}
+              onGoToToday={handleGoToToday}
             />
           )}
           
@@ -281,6 +292,7 @@ export default function CalendarApp() {
               today={today}
               setViewMonth={setViewMonth}
               setViewMode={setViewMode}
+              onGoToToday={handleGoToToday}
             />
           )}
         </div>
