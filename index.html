@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Calendar App</title>
+    <style>
+      /* Base styles */
+      html, body, #root {
+        height: 100%;
+        width: 100%;
+        overflow: hidden;
+        margin: 0;
+        padding: 0;
+      }
+      
+      body {
+        background-color: #ffffff;
+        color: #334155;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      }
+      
+      /* Ensure modals and overlays have white background */
+      [class*="fixed"], 
+      [class*="absolute"],
+      [class*="modal"],
+      [class*="overlay"],
+      [class*="dialog"] {
+        background-color: rgba(255, 255, 255, 0.9) !important;
+      }
+      
+      /* Remove black shadows and ensure all elements stay light */
+      * {
+        box-shadow: 0 0 10px rgba(200, 200, 220, 0.3) !important;
+        color: #4a5568 !important; /* Default text color for everything */
+        border-color: #e2e8f0 !important;
+        fill: #4a5568 !important; /* For SVG fills */
+        stroke: #4a5568 !important; /* For SVG strokes */
+      }
+      
+      /* Override any backgrounds that might be dark */
+      div, span, button, a, input, textarea, select {
+        background-color: transparent !important;
+      }
+      
+      /* Add light backgrounds to specific elements */
+      button, input, select, textarea, .btn {
+        background-color: rgb(248, 250, 252) !important;
+      }
+      
+      /* Override text colors for important elements */
+      h1, h2, h3, h4, h5, h6, b, strong {
+        color: #2d3748 !important;
+      }
+      
+      /* Calendar day cells - give them more space in the larger layout */
+      [class*="grid-cols-7"] > div {
+        min-height: 90px !important;
+        width: calc(100% / 7) !important;
+      }
+      
+      /* Ensure the calendar uses full width */
+      [class*="grid-cols-7"] {
+        width: 100% !important;
+        max-width: none !important;
+      }
+      
+      /* Make numbers more visible */
+      span {
+        color: #1a202c !important;
+        font-weight: 500 !important;
+      }
+      
+      @media (min-width: 1280px) {
+        [class*="grid-cols-7"] > div {
+          min-height: 110px !important;
+        }
+      }
+      
+      @media (min-width: 1536px) {
+        [class*="grid-cols-7"] > div {
+          min-height: 130px !important;
+        }
+      }
+      
+      /* Ensure main container takes full width */
+      .flex-1 {
+        flex: 1 1 0% !important;
+        min-width: 0 !important;
+        width: 100% !important;
+      }
+      
+      /* Special handling for calendar components */
+      [class*="bg-blue-"], [class*="bg-red-"], [class*="bg-green-"], [class*="bg-yellow-"] {
+        background-color: rgba(235, 245, 255, 0.9) !important; /* Light blue for all colored backgrounds */
+        color: #3182ce !important; /* Blue text */
+      }
+      
+      /* Override any hover styles that might be dark */
+      *:hover {
+        background-color: rgba(240, 245, 255, 0.8) !important;
+        color: #4a5568 !important;
+        box-shadow: 0 0 8px rgba(230, 230, 250, 0.4) !important;
+        border-color: #e2e8f0 !important;
+      }
+      
+      /* Keep buttons and interactive elements distinguishable */
+      button:hover, a:hover, [role="button"]:hover {
+        background-color: rgba(235, 245, 255, 0.9) !important;
+        color: #3182ce !important;
+      }
+      
+      /* Grid cell sizing and responsive adjustments */
+      .grid-cols-7 {
+        width: 100% !important;
+      }
+      
+      .grid-cols-7 > div {
+        aspect-ratio: 1.4/1;
+        height: auto !important;
+        min-height: unset !important;
+      }
+      
+      /* Calendar cell responsive heights */
+      @media (max-height: 700px) {
+        .grid-cols-7 > div {
+          aspect-ratio: 1.8/1;
+        }
+      }
+      
+      @media (min-height: 900px) {
+        .grid-cols-7 > div {
+          aspect-ratio: 1.2/1;
+        }
+      }
+      
+      /* Day number sizing fixes */
+      .grid-cols-7 span {
+        color: #1a202c !important;
+        font-weight: 500 !important;
+      }
+      
+      /* Ensure content stays within viewport */
+      .overflow-hidden {
+        overflow: hidden !important;
+      }
+      
+      .h-\[calc\(100vh-64px\)\] {
+        height: calc(100vh - 64px) !important;
+        max-height: calc(100vh - 64px) !important;
+      }
+      
+      /* Specific overrides for grid cells */
+      .flex-1 {
+        flex: 1 1 0% !important;
+        min-width: 0 !important;
+      }
+      
+      /* Remove any hover styles that might be dark */
+      *:hover {
+        background-color: rgba(240, 245, 255, 0.8) !important;
+        color: #4a5568 !important;
+        box-shadow: 0 0 8px rgba(230, 230, 250, 0.4) !important;
+        border-color: #e2e8f0 !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
