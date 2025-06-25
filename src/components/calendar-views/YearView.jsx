@@ -1,8 +1,22 @@
 import React, { useState } from 'react';
-import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar, X } from 'lucide-react';
 import { getDaysInMonth, getFirstDayOfWeek } from '../../utils/dateUtils';
 
-export default function YearView({ viewYear, today, setViewMonth, setViewMode, events = {}, viewMode, setViewYear, onDateClick, selectedDate, onGoToToday }) {
+export default function YearView({
+  viewYear,
+  today,
+  setViewMonth,
+  setViewMode,
+  events = {},
+  setEvents,
+  tasks = {},
+  setTasks,
+  viewMode,
+  setViewYear,
+  onDateClick,
+  selectedDate,
+  onGoToToday
+}) {
   // Soft, elegant themes
   const themes = {
     gentle: {
@@ -171,6 +185,14 @@ export default function YearView({ viewYear, today, setViewMonth, setViewMode, e
     // Do NOT change month or view mode here
   };
 
+  const [selectedDayEvents, setSelectedDayEvents] = useState([]);
+  const [selectedDayStr, setSelectedDayStr] = useState('');
+
+  const handleDayClick = (dateStr) => {
+    setSelectedDayStr(dateStr);
+    setSelectedDayEvents(events[dateStr] || []);
+  };
+
   return (
     <div className="w-full h-full overflow-y-auto bg-gradient-to-br from-gray-50 via-white to-blue-50 relative">
       {/* Cosmic floating background elements */}
@@ -324,9 +346,7 @@ export default function YearView({ viewYear, today, setViewMonth, setViewMode, e
                               }`}
                               onClick={(e) => {
                                 e.stopPropagation();
-                                if (onDateClick) {
-                                  onDateClick(dateStr);
-                                }
+                                handleDayClick(dateStr);
                               }}
                             >
                               {day}
@@ -387,6 +407,51 @@ export default function YearView({ viewYear, today, setViewMonth, setViewMode, e
           </div>
         </div>
       </div>
+
+      {/* Modal to show events for selected day */}
+      {selectedDayStr && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-md w-full max-w-md overflow-hidden border border-gray-200/50">
+            <div className="bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-4 flex justify-between items-center">
+              <div className="text-white font-bold">
+                Events for {new Date(selectedDayStr).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+              </div>
+              <button onClick={() => setSelectedDayStr('')} className="text-white"><X /></button>
+            </div>
+            <div className="p-6 space-y-4">
+              {selectedDayEvents.length === 0 && <div className="text-gray-500">No events for this day.</div>}
+              {selectedDayEvents.map((event, idx) => (
+                <div key={idx} className="flex items-center justify-between bg-blue-50 rounded-lg px-3 py-2 mb-2">
+                  <div>
+                    <div className="font-bold text-blue-800">{event.title}</div>
+                    <div className="text-xs text-blue-600">{event.time} • {event.category}</div>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      className="text-blue-500 hover:text-blue-700"
+                      onClick={() => handleEditEvent(event, idx)}
+                      title="Edit"
+                    >✏️</button>
+                    <button
+                      className="text-red-500 hover:text-red-700"
+                      onClick={() => {
+                        if (typeof props.setEvents === 'function') {
+                          props.setEvents(prev => ({
+                            ...prev,
+                            [selectedDayStr]: prev[selectedDayStr].filter((_, i) => i !== idx)
+                          }));
+                          setSelectedDayEvents(evts => evts.filter((_, i) => i !== idx));
+                        }
+                      }}
+                      title="Delete"
+                    ><X className="w-4 h-4" /></button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

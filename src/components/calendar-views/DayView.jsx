@@ -1,6 +1,12 @@
 import React from 'react';
 import { formatTime } from '../../utils/dateUtils';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar, Clock, X } from 'lucide-react';
+
+// Add this utility function at the top of the file (or import from dateUtils if you prefer)
+function formatDate(date) {
+  const d = (date instanceof Date) ? date : new Date(date);
+  return d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+}
 
 export default function DayView({
   dayViewDate,
@@ -8,9 +14,10 @@ export default function DayView({
   viewMode,
   setViewMode,
   events = {},
-  setEvents,
+  setEvents, // <-- must be passed from CalendarApp
   today,
-  tasks = [],
+  tasks = {},
+  setTasks,
   onGoToToday,
   ...props
 }) {
@@ -65,13 +72,99 @@ export default function DayView({
   const dayOfWeek = dateObj.toLocaleDateString('en-US', { weekday: 'short' });
   const dayNumber = dateObj.getDate();
 
-  // Get all-day events
-  const allDayEvents = Object.entries(events || {})
-    .filter(([key]) => key === dayViewDate)
-    .reduce((acc, [_, events]) => [...acc, ...events], []);
+  // State for editing event
+  const [editIdx, setEditIdx] = React.useState(null);
+  const [editTime, setEditTime] = React.useState('');
+  const [editTitle, setEditTitle] = React.useState('');
+  const [editModalOpen, setEditModalOpen] = React.useState(false);
 
-  // Get tasks for this day
-  const dayTasks = tasks[dayViewDate] || [];
+  // Get date key for the day
+  const dateKey = currentDate.toISOString().split('T')[0];
+  const dayEvents = events[dateKey] || [];
+
+  // --- Helper: get all events for a specific hour ---
+  const getEventsAtHour = (hour) => {
+    const dateEvents = events[dateKey] || [];
+    // Show all events for this date whose time is in this hour (e.g., 12:09 in 12:00 slot)
+    return dateEvents.filter(event => {
+      if (!event.time) return false;
+      const [h] = event.time.split(':');
+      return parseInt(h, 10) === hour;
+    });
+  };
+
+  // --- Edit event handler ---
+  const handleEditEvent = (event, idx) => {
+    setEditIdx(idx);
+    setEditTitle(event.title);
+    setEditTime(event.time);
+    setEditModalOpen(true);
+  };
+
+  // --- Save edited event ---
+  const handleSaveEditEvent = () => {
+    if (!editTitle || !editTime || editIdx == null) {
+      setEditModalOpen(false);
+      return;
+    }
+    if (typeof setEvents !== 'function') {
+      setEditModalOpen(false);
+      return;
+    }
+    setEvents(prev => {
+      // Update event in dateKey array
+      const updatedDayEvents = (prev[dateKey] || []).map((event, i) =>
+        i === editIdx ? { ...event, title: editTitle, time: editTime } : event
+      );
+      // Remove old event from all time slots
+      let newPrev = { ...prev };
+      for (let h = 0; h < 24; h++) {
+        const slotKey = `${dateKey}T${String(h).padStart(2, '0')}:00`;
+        if (newPrev[slotKey]) {
+          newPrev[slotKey] = newPrev[slotKey].filter(
+            (event, i) => !(i === editIdx && event.time)
+          );
+        }
+      }
+      // Add updated event to new time slot
+      const newTimeKey = `${dateKey}T${editTime}`;
+      newPrev[newTimeKey] = [...(newPrev[newTimeKey] || []), { ...prev[dateKey][editIdx], title: editTitle, time: editTime }];
+      // Update dateKey array
+      newPrev[dateKey] = updatedDayEvents;
+      return newPrev;
+    });
+    setEditModalOpen(false);
+    setEditIdx(null);
+    setEditTitle('');
+    setEditTime('');
+  };
+
+  // --- Delete event handler ---
+  const handleDeleteEvent = (idx, timeStr) => {
+    if (typeof setEvents !== 'function') return;
+    setEvents(prev => {
+      let newPrev = { ...prev };
+      // Remove from dateKey
+      newPrev[dateKey] = (newPrev[dateKey] || []).filter((_, i) => i !== idx);
+      // Remove from all time slots for this date
+      for (let h = 0; h < 24; h++) {
+        const slotKey = `${dateKey}T${String(h).padStart(2, '0')}:00`;
+        if (newPrev[slotKey]) {
+          newPrev[slotKey] = newPrev[slotKey].filter(
+            (event, i) => !(i === idx && event.time)
+          );
+        }
+      }
+      return newPrev;
+    });
+  };
+
+  // Fix: Use a state for current time and update every minute
+  const [currentTime, setCurrentTime] = React.useState(new Date());
+  React.useEffect(() => {
+    const interval = setInterval(() => setCurrentTime(new Date()), 1000 * 30);
+    return () => clearInterval(interval);
+  }, []);
 
   // Define colorful styles for different parts of the day
   const timeColorScheme = {
@@ -89,167 +182,8 @@ export default function DayView({
     return timeColorScheme.night;
   };
 
-  // Generate time slots for day view with more colors
-  const generateTimeSlots = () => {
-    if (!dayViewDate) return [];
-    
-    const slots = [];
-    const currentHour = currentTime.getHours();
-    const currentMinute = currentTime.getMinutes();
-    
-    for (let hour = 0; hour < 24; hour++) {
-      const timeStr = `${String(hour).padStart(2, '0')}:00`;
-      const eventKey = `${dayViewDate}T${timeStr}`;
-      const isCurrentTimeHour =
-        new Date(dayViewDate).toDateString() === currentTime.toDateString() &&
-        hour === currentHour;
-      const eventsAtThisTime = events[eventKey] || [];
-
-      slots.push(
-        <div 
-          key={timeStr} 
-          className={`flex border-b border-gray-200/60 relative ${getTimePeriodColor(hour)}`} 
-          id={`hour-${hour}`}
-        >
-          {/* Time indicator */}
-          <div className="w-12 py-2 text-right pr-2 text-xs text-gray-500">
-            <div className="sticky top-0">
-              {hour === 0 ? '' : formatTime(hour, 0)}
-            </div>
-          </div>
-
-          {/* Event slot (main column) */}
-          <div className="flex-1 min-h-[48px] relative">
-            {/* Hover interaction zone */}
-            <div className="absolute inset-0">
-              <button
-                className="absolute inset-0 w-full h-full opacity-0 hover:opacity-100"
-                onClick={() => handleOpenModal(dayViewDate, `${String(hour).padStart(2, '0')}:00`)}
-              >
-                <div className="h-full flex items-center justify-center">
-                  <div className="text-xs text-blue-600 flex items-center bg-blue-50 p-1 rounded-sm">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth={2}
-                      stroke="currentColor"
-                      className="w-3 h-3 mr-1"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M12 4.5v15m7.5-7.5h-15"
-                      />
-                    </svg>
-                    <span className="font-medium">Add</span>
-                  </div>
-                </div>
-              </button>
-            </div>
-
-            {/* Events display with gradient backgrounds */}
-            {eventsAtThisTime.map((event, idx) => (
-              <div 
-                key={idx} 
-                className="absolute left-1 right-3 bg-gradient-to-r from-blue-100 to-indigo-100 border-l-4 border-blue-600 text-blue-800 px-2 py-1 text-xs rounded-r-md shadow-sm"
-                style={{
-                  zIndex: 10,
-                  top: '2px',
-                  minHeight: '44px',
-                }}
-              >
-                <div className="flex justify-between items-start h-full">
-                  <div className="flex flex-col justify-between h-full overflow-hidden">
-                    <span className="font-medium truncate">{event.title}</span>
-                    <span className="text-xs text-blue-700 opacity-75">
-                      {formatTime(parseInt(timeStr.split(':')[0]), 0)} –{' '}
-                      {formatTime(parseInt(timeStr.split(':')[0]) + 1, 0)}
-                    </span>
-                  </div>
-                  <div className="opacity-0 hover:opacity-100 transition-opacity">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteEvent(eventKey, idx);
-                      }}
-                      className="text-gray-500 hover:text-gray-700 p-1"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth={2}
-                        stroke="currentColor"
-                        className="w-3 h-3"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M6 18L18 6M6 6l12 12"
-                        />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-          
-          {/* Current time indicator with pulsing effect */}
-          {isCurrentTimeHour && (
-            <div 
-              className="absolute left-0 right-0 flex items-center pointer-events-none" 
-              style={{ top: `${currentMinute / 60 * 100}%`, zIndex: 20 }}
-            >
-              <div className="w-3 h-3 rounded-full ml-[10px] z-10 bg-red-500 shadow-md shadow-red-500/30 animate-pulse"></div>
-              <div className="h-[2px] w-full z-10 bg-gradient-to-r from-red-500 to-red-400"></div>
-            </div>
-          )}
-        </div>
-      );
-    }
-    
-    return slots;
-  };
-
-  const formatDate = (date) => {
-    const d = (date instanceof Date) ? date : new Date(date)
-    return d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
-  };
-
-  // Fix: Go to Today button handler
-  const handleGoToToday = () => {
-    if (typeof setDayViewDate === 'function') {
-      setDayViewDate(new Date());
-    }
-  };
-
-  // Fix: Navigation for previous/next day
-  const handleNavigateDay = (direction) => {
-    if (!dayViewDate || !setDayViewDate) return;
-    const newDate = new Date(dayViewDate);
-    if (direction === 'prev') {
-      newDate.setDate(newDate.getDate() - 1);
-    } else {
-      newDate.setDate(newDate.getDate() + 1);
-    }
-    setDayViewDate(newDate);
-  };
-
-  // Get events for the current day
-  const dayEvents = events[
-    currentDate && typeof currentDate.toISOString === 'function'
-      ? currentDate.toISOString().split('T')[0]
-      : new Date().toISOString().split('T')[0]
-  ] || [];
-
-  // Fix: Use a state for current time and update every minute
-  const [currentTime, setCurrentTime] = React.useState(new Date());
-  React.useEffect(() => {
-    const interval = setInterval(() => setCurrentTime(new Date()), 1000 * 30);
-    return () => clearInterval(interval);
-  }, []);
+  // Add this fallback if onGoToToday is not passed
+  const handleGoToToday = onGoToToday || (() => {});
 
   return (
     <div className="w-full h-full flex flex-col bg-transparent relative overflow-hidden">
@@ -260,9 +194,9 @@ export default function DayView({
         <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-gradient-to-br from-green-200/10 to-teal-200/10 rounded-full blur-3xl animate-pulse animation-delay-4000"></div>
       </div>
 
-      {/* Ultra-futuristic floating header */}
-      <div className="sticky top-0 z-30 px-4 pt-4 pb-3">
-        <div className="bg-white/10 backdrop-blur-3xl rounded-[1.5rem] p-6 shadow-[0_20px_50px_rgba(8,_112,_184,_0.7)] border border-white/30 relative overflow-hidden">
+      {/* Header */}
+      <div className="sticky top-0 z-30 px-2 pt-2 pb-2">
+        <div className="bg-white/10 backdrop-blur-3xl rounded-xl p-3 shadow border border-white/30 relative overflow-hidden">
           {/* Holographic overlay */}
           <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 animate-gradient-x"></div>
           
@@ -316,133 +250,129 @@ export default function DayView({
         </div>
       </div>
       
-      {/* Revolutionary day content with holographic time slots */}
-      <div className="flex-1 overflow-y-auto px-4 pb-4 relative z-10">
-        <div className="max-w-6xl mx-auto">
-          {/* Enhanced events summary with 3D effects */}
-          {dayEvents.length > 0 && (
-            <div className="mb-6 bg-white/20 backdrop-blur-3xl rounded-[1.5rem] p-6 border border-white/30 shadow-[0_15px_35px_rgba(0,0,0,0.1)] animate-slide-up relative overflow-hidden">
-              {/* Holographic background */}
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-purple-50/50 opacity-50"></div>
-              
-              <h2 className="text-2xl font-black text-gray-800 mb-4 flex items-center gap-3 relative z-10">
-                <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-xl">
-                  <span className="text-white text-base">📅</span>
-                </div>
-                Today's Events
-                <div className="flex-1 h-px bg-gradient-to-r from-blue-500 to-purple-600 opacity-30"></div>
-              </h2>
-              
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 relative z-10">
-                {dayEvents.map((event, idx) => (
-                  <div 
-                    key={idx} 
-                    className="group p-4 bg-gradient-to-br from-white/80 to-blue-50/80 rounded-xl border border-blue-200/30 hover:shadow-xl transform hover:scale-105 transition-all duration-500 backdrop-blur-lg relative overflow-hidden"
-                    style={{ animationDelay: `${idx * 150}ms` }}
-                  >
-                    {/* Floating background effect */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-blue-100/20 to-purple-100/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    
-                    <div className="flex items-center space-x-3 relative z-10">
-                      <div className="w-5 h-5 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full animate-pulse shadow-md"></div>
-                      <div className="flex-1">
-                        <div className="font-bold text-gray-800 group-hover:text-blue-700 transition-colors duration-200 text-base">{event.title}</div>
-                        <div className="text-sm text-gray-600 mt-1 font-semibold">{event.time} • {event.category}</div>
-                      </div>
+      {/* Content */}
+      <div className="flex-1 overflow-y-auto px-2 pb-2 relative z-10">
+        <div className="max-w-7xl mx-auto"> {/* Increased max-w for even wider grid */}
+          {/* Time slots grid */}
+          <div className="grid gap-2">
+            {Array.from({ length: 24 }, (_, hour) => {
+              const timeStr = `${String(hour).padStart(2, '0')}:00`;
+              const eventsAtThisTime = getEventsAtHour(hour);
+              const isCurrentTimeHour =
+                dateKey === currentTime.toISOString().split('T')[0] &&
+                hour === currentTime.getHours();
+
+              return (
+                <div 
+                  key={hour} 
+                  className="group flex flex-row items-start space-x-2 animate-slide-up"
+                  style={{ animationDelay: `${hour * 30}ms` }}
+                >
+                  {/* Time display - wider like Google Calendar */}
+                  <div className="w-40 text-right flex-shrink-0"> {/* Increased width */}
+                    <div className="inline-flex items-center justify-center w-36 h-10 bg-gradient-to-br from-white/60 to-gray-100/60 rounded-lg border border-white/40 shadow-md">
+                      <span className="text-base font-bold text-gray-700">
+                        {hour === 0 ? '12 AM' : hour === 12 ? '12 PM' : hour > 12 ? `${hour - 12} PM` : `${hour} AM`}
+                      </span>
                     </div>
                   </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Ultra-futuristic time slots grid */}
-          <div className="grid gap-4 lg:gap-6">
-            {Array.from({ length: 24 }, (_, hour) => (
-              <div 
-                key={hour} 
-                className="group flex flex-col sm:flex-row items-start space-y-3 sm:space-y-0 sm:space-x-6 animate-slide-up"
-                style={{ animationDelay: `${hour * 50}ms` }}
-              >
-                {/* Holographic time display */}
-                <div className="w-full sm:w-28 text-center sm:text-right">
-                  <div className="inline-flex items-center justify-center w-24 h-12 bg-gradient-to-br from-white/60 to-gray-100/60 rounded-xl group-hover:from-blue-100/60 group-hover:to-purple-100/60 transition-all duration-500 backdrop-blur-lg border border-white/40 shadow-md group-hover:shadow-xl transform group-hover:scale-105">
-                    <span className="text-lg font-black text-gray-700 group-hover:text-blue-700 transition-colors duration-300">
-                      {hour === 0 ? '12 AM' : hour === 12 ? '12 PM' : hour > 12 ? `${hour - 12} PM` : `${hour} AM`}
-                    </span>
-                  </div>
-                </div>
-                
-                {/* Revolutionary time slot with advanced interactivity */}
-                <div className="flex-1 min-h-[80px] bg-white/40 backdrop-blur-xl rounded-2xl border border-white/50 p-6 group-hover:bg-gradient-to-r group-hover:from-blue-50/60 group-hover:to-purple-50/60 transition-all duration-500 shadow-md hover:shadow-xl transform hover:scale-[1.01] cursor-pointer relative overflow-hidden">
-                  {/* Holographic pattern overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-3xl"></div>
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
                   
-                  {/* Content area with enhanced styling */}
-                  <div className="relative z-10">
-                    {/* Enhanced event display */}
-                    {dayEvents
-                      .filter(event => {
-                        const eventHour = parseInt(event.time?.split(':')[0] || '0');
-                        return eventHour === hour;
-                      })
-                      .map((event, idx) => (
-                        <div key={idx} className="mb-3 p-4 bg-gradient-to-r from-blue-100/80 to-purple-100/80 rounded-xl border-l-4 border-blue-500 shadow-lg transform hover:scale-105 transition-all duration-300 backdrop-blur-sm">
-                          <div className="font-black text-blue-800 text-lg">{event.title}</div>
-                          <div className="text-sm text-blue-600 opacity-75 mt-1 font-semibold">{event.time} • {event.category}</div>
+                  {/* Time slot */}
+                  <div
+                    className="flex-1 min-h-[64px] bg-white/40 backdrop-blur-xl rounded-lg border border-white/50 p-4 group-hover:bg-gradient-to-r group-hover:from-blue-50/60 group-hover:to-purple-50/60 transition-all duration-300 shadow-sm hover:shadow-md transform hover:scale-[1.01] cursor-pointer relative overflow-hidden"
+                    style={{ zIndex: 2 }}
+                  >
+                    {/* Holographic pattern overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-3xl"></div>
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                    
+                    {/* Content area with enhanced styling */}
+                    <div className="relative z-10">
+                      {eventsAtThisTime.map((event, idx) => (
+                        <div key={idx} className="mb-3 p-4 bg-gradient-to-r from-blue-100/80 to-purple-100/80 rounded-xl border-l-4 border-blue-500 shadow-lg transform hover:scale-105 transition-all duration-300 backdrop-blur-sm flex justify-between items-center">
+                          <div>
+                            <div className="font-black text-blue-800 text-lg">{event.title}</div>
+                            <div className="text-sm text-blue-600 opacity-75 mt-1 font-semibold">{event.time} • {event.category}</div>
+                          </div>
+                          <div className="flex gap-2 ml-2">
+                            <button
+                              className="text-blue-500 hover:text-blue-700"
+                              onClick={() => handleEditEvent(event, dayEvents.findIndex(e => e === event))}
+                              title="Edit"
+                            >✏️</button>
+                            <button
+                              className="text-red-500 hover:text-red-700"
+                              onClick={() => handleDeleteEvent(dayEvents.findIndex(e => e === event), event.time)}
+                              title="Delete"
+                            ><X className="w-4 h-4" /></button>
+                          </div>
                         </div>
                       ))}
-                    
-                    {/* Enhanced empty state */}
-                    {!dayEvents.some(event => parseInt(event.time?.split(':')[0] || '0') === hour) && (
-                      <div className="flex items-center justify-center h-full min-h-[48px]">
-                        <div className="text-gray-400 text-center group-hover:text-gray-600 transition-colors duration-300">
-                          <div className="text-3xl mb-2 opacity-0 group-hover:opacity-100 transition-all duration-500 transform group-hover:scale-110">➕</div>
-                          <div className="text-base font-semibold">No events • Click to add</div>
+                      {!eventsAtThisTime.length && (
+                        <div className="flex items-center justify-center h-full min-h-[48px]">
+                          <div className="text-gray-400 text-center group-hover:text-gray-600 transition-colors duration-300">
+                            <div className="text-base font-semibold">No events</div>
+                          </div>
                         </div>
-                      </div>
-                    )}
-                  </div>
-                  
-                  {/* Floating interaction indicators */}
-                  <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <div className="w-2.5 h-2.5 bg-blue-500 rounded-full animate-pulse shadow-md"></div>
-                  </div>
-                  <div className="absolute bottom-4 left-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                    <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse shadow-md"></div>
+                      )}
+                    </div>
+                    {/* Floating interaction indicators */}
+                    <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <div className="w-2.5 h-2.5 bg-blue-500 rounded-full animate-pulse shadow-md"></div>
+                    </div>
+                    <div className="absolute bottom-4 left-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                      <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse shadow-md"></div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>
-
-      {/* Ultra-modern floating action button */}
-      <div className="fixed right-6 bottom-6 z-40">
-        <button className="group relative w-16 h-16 bg-gradient-to-r from-blue-500 via-purple-600 to-pink-500 rounded-2xl flex items-center justify-center shadow-[0_15px_35px_rgba(59,130,246,0.4)] transform transition-all duration-500 hover:scale-125 hover:rotate-90 hover:shadow-[0_20px_45px_rgba(59,130,246,0.6)] focus:outline-none focus:ring-4 focus:ring-blue-300/50 animate-float overflow-hidden">
-          {/* Holographic overlay */}
-          <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
-          
-          <span className="text-white text-2xl group-hover:scale-110 transition-transform duration-200 relative z-10">➕</span>
-          
-          {/* Orbiting particles */}
-          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-            {[...Array(6)].map((_, i) => (
-              <div
-                key={i}
-                className="absolute w-2 h-2 bg-white/60 rounded-full animate-orbit"
-                style={{
-                  animationDelay: `${i * 200}ms`,
-                  animationDuration: '3s'
-                }}
+      {/* Edit Event Modal */}
+      {editModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-xs p-6 border border-gray-200 relative flex flex-col items-center">
+            <button
+              className="absolute top-2 right-2 text-gray-400 hover:text-gray-700"
+              onClick={() => setEditModalOpen(false)}
+              aria-label="Close"
+            >
+              ×
+            </button>
+            <h2 className="text-lg font-bold mb-4 text-gray-800 text-center">Edit Event</h2>
+            <div className="mb-3 w-full">
+              <label className="block text-xs font-semibold text-gray-600 mb-1">Event Name</label>
+              <input
+                type="text"
+                className="w-full border border-gray-200 rounded px-2 py-1"
+                value={editTitle}
+                onChange={e => setEditTitle(e.target.value)}
+                placeholder="Event name"
+                autoFocus
               />
-            ))}
+            </div>
+            <div className="mb-4 w-full">
+              <label className="block text-xs font-semibold text-gray-600 mb-1">Time</label>
+              <input
+                type="time"
+                className="w-full border border-gray-200 rounded px-2 py-1"
+                value={editTime}
+                onChange={e => setEditTime(e.target.value)}
+                step="900"
+              />
+            </div>
+            <button
+              className="w-full py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded font-bold shadow hover:shadow-lg"
+              onClick={handleSaveEditEvent}
+              disabled={!editTitle || !editTime}
+            >
+              Update Event
+            </button>
           </div>
-        </button>
-      </div>
+        </div>
+      )}
     </div>
   );
 }

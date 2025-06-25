@@ -16,6 +16,7 @@ export default function Sidebar({
   tasks,
   handleToggleTaskCompletion,
   handleDeleteTask,
+  setEvents, // <-- make sure setEvents is received as a prop
 }) {
   // Define utility functions locally if they're not being properly imported or passed as props
   const getLocalDateStr = (day) => `${viewYear}-${String(viewMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
@@ -98,6 +99,82 @@ export default function Sidebar({
     return `${hours % 12 || 12}:${minutes.toString().padStart(2, '0')} ${hours >= 12 ? 'PM' : 'AM'}`
   }
 
+  // Add state for new event creation
+  const [showCreateEvent, setShowCreateEvent] = React.useState(false);
+  const [eventName, setEventName] = React.useState('');
+  const [eventDate, setEventDate] = React.useState('');
+  const [eventTime, setEventTime] = React.useState('');
+
+  // Helper for today's date in YYYY-MM-DD
+  const getTodayStr = () => {
+    const d = new Date();
+    return d.toISOString().split('T')[0];
+  };
+
+  // Handler for saving event (add or edit)
+  const handleSaveEvent = () => {
+    if (!eventName || !eventDate || !eventTime) return;
+    if (typeof setEvents === 'function') {
+      setEvents(prev => {
+        const dateKey = eventDate;
+        const timeKey = `${eventDate}T${eventTime}`;
+        const eventObj = { title: eventName, time: eventTime };
+        // Remove old event if editing
+        let newPrev = { ...prev };
+        if (editIdx !== null && editDate && editTime) {
+          // Remove from dateKey and timeKey
+          newPrev[editDate] = (newPrev[editDate] || []).filter((_, i) => i !== editIdx);
+          newPrev[`${editDate}T${editTime}`] = (newPrev[`${editDate}T${editTime}`] || []).filter((_, i) => i !== editIdx);
+        }
+        // Add new/edited event
+        return {
+          ...newPrev,
+          [dateKey]: [...(newPrev[dateKey] || []), eventObj],
+          [timeKey]: [...(newPrev[timeKey] || []), eventObj],
+        };
+      });
+    }
+    setShowCreateEvent(false);
+    setEventName('');
+    setEventDate('');
+    setEventTime('');
+    setEditIdx(null);
+    setEditDate('');
+    setEditTime('');
+  };
+
+  // State for editing
+  const [editIdx, setEditIdx] = React.useState(null);
+  const [editDate, setEditDate] = React.useState('');
+  const [editTime, setEditTime] = React.useState('');
+
+  // Handler for editing event
+  const handleEditEvent = (dateKey, idx) => {
+    const event = events[dateKey][idx];
+    setEventName(event.title);
+    setEventDate(dateKey);
+    setEventTime(event.time);
+    setEditIdx(idx);
+    setEditDate(dateKey);
+    setEditTime(event.time);
+    setShowCreateEvent(true);
+  };
+
+  // Handler for deleting event
+  const handleDeleteEvent = (dateKey, idx) => {
+    if (typeof setEvents === 'function') {
+      setEvents(prev => {
+        const timeKey = `${dateKey}T${(prev[dateKey][idx] && prev[dateKey][idx].time) || ''}`;
+        const newPrev = { ...prev };
+        newPrev[dateKey] = (newPrev[dateKey] || []).filter((_, i) => i !== idx);
+        if (newPrev[timeKey]) {
+          newPrev[timeKey] = newPrev[timeKey].filter((_, i) => i !== idx);
+        }
+        return newPrev;
+      });
+    }
+  };
+
   return (
     <div 
       className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
@@ -123,8 +200,10 @@ export default function Sidebar({
         <button 
           className="group mb-8 flex items-center justify-center px-6 py-4 rounded-2xl shadow-lg border border-white/50 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold text-sm transform transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:from-blue-600 hover:to-purple-700 relative overflow-hidden w-full"
           onClick={() => {
-            handleOpenModal(dayViewDate || getLocalDateStr(today.getDate()));
-            setSidebarOpen(false);
+            setShowCreateEvent(true);
+            setEventDate(getTodayStr());
+            setEventTime('');
+            setEventName('');
           }}
         >
           <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -133,7 +212,66 @@ export default function Sidebar({
           </svg>
           <span className="relative z-10">Create Event</span>
         </button>
-        
+
+        {/* Create Event Modal */}
+        {showCreateEvent && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+            <div className="bg-white rounded-xl shadow-2xl w-full max-w-xs p-6 border border-gray-200 relative flex flex-col items-center">
+              <button
+                className="absolute top-2 right-2 text-gray-400 hover:text-gray-700"
+                onClick={() => {
+                  setShowCreateEvent(false);
+                  setEditIdx(null);
+                  setEditDate('');
+                  setEditTime('');
+                }}
+                aria-label="Close"
+              >
+                ×
+              </button>
+              <h2 className="text-lg font-bold mb-4 text-gray-800 text-center">{editIdx !== null ? 'Edit Event' : 'Create Event'}</h2>
+              <div className="mb-3 w-full">
+                <label className="block text-xs font-semibold text-gray-600 mb-1">Event Name</label>
+                <input
+                  type="text"
+                  className="w-full border border-gray-200 rounded px-2 py-1"
+                  value={eventName}
+                  onChange={e => setEventName(e.target.value)}
+                  placeholder="Event name"
+                  autoFocus
+                />
+              </div>
+              <div className="mb-3 w-full">
+                <label className="block text-xs font-semibold text-gray-600 mb-1">Date</label>
+                <input
+                  type="date"
+                  className="w-full border border-gray-200 rounded px-2 py-1"
+                  value={eventDate}
+                  min={getTodayStr()}
+                  onChange={e => setEventDate(e.target.value)}
+                />
+              </div>
+              <div className="mb-4 w-full">
+                <label className="block text-xs font-semibold text-gray-600 mb-1">Time</label>
+                <input
+                  type="time"
+                  className="w-full border border-gray-200 rounded px-2 py-1"
+                  value={eventTime}
+                  onChange={e => setEventTime(e.target.value)}
+                  step="900"
+                />
+              </div>
+              <button
+                className="w-full py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded font-bold shadow hover:shadow-lg"
+                onClick={handleSaveEvent}
+                disabled={!eventName || !eventDate || !eventTime}
+              >
+                {editIdx !== null ? 'Update Event' : 'Save Event'}
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Enhanced mini calendar */}
         <div className="mb-8 bg-gradient-to-br from-white/80 to-gray-50/80 p-5 rounded-3xl shadow-xl border border-white/50 backdrop-blur-lg">
           <div className="flex justify-between items-center mb-6">
@@ -261,16 +399,31 @@ export default function Sidebar({
           <div className="text-xs space-y-2 max-h-[180px] overflow-auto">
             {Object.entries(events || {})
               .sort(([dateA], [dateB]) => new Date(dateA) - new Date(dateB))
-              .slice(0, 3)
-              .map(([date, dateEvents]) => dateEvents.map((event, idx) => (
-                <div key={`${date}-${idx}`} className="p-2 bg-gray-50 text-gray-700 rounded border-l-4 border-blue-400">
-                  <div className="font-medium">{event.title}</div>
-                  <div className="text-gray-500">
-                    {new Date(date.split('T')[0]).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                    {event.time && ` • ${formatTime(parseInt(event.time.split(':')[0]), 0)}`}
+              .map(([date, dateEvents]) =>
+                dateEvents.map((event, idx) => (
+                  <div key={`${date}-${idx}`} className="p-2 bg-gray-50 text-gray-700 rounded border-l-4 border-blue-400 flex items-center justify-between">
+                    <div>
+                      <div className="font-medium">{event.title}</div>
+                      <div className="text-gray-500">
+                        {new Date(date.split('T')[0]).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                        {event.time && ` • ${event.time}`}
+                      </div>
+                    </div>
+                    <div className="flex gap-2 ml-2">
+                      <button
+                        className="text-blue-500 hover:text-blue-700"
+                        onClick={() => handleEditEvent(date, idx)}
+                        title="Edit"
+                      >✏️</button>
+                      <button
+                        className="text-red-500 hover:text-red-700"
+                        onClick={() => handleDeleteEvent(date, idx)}
+                        title="Delete"
+                      >🗑️</button>
+                    </div>
                   </div>
-                </div>
-              )))
+                ))
+              )
               .flat()
             }
           </div>

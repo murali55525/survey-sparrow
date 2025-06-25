@@ -12,8 +12,11 @@ import { formatTime, getDaysInMonth, getFirstDayOfWeek, getDateStr } from './uti
 const today = new Date()
 
 export default function CalendarApp({ viewMode, setViewMode }) {
-  // Core state
+  // Always start with empty events/tasks (do not load from localStorage)
   const [events, setEvents] = useState({})
+  const [tasks, setTasks] = useState({})
+
+  // Core state
   const [viewYear, setViewYear] = useState(today.getFullYear())
   const [viewMonth, setViewMonth] = useState(today.getMonth())
   const [dayViewDate, setDayViewDate] = useState(new Date())
@@ -27,7 +30,6 @@ export default function CalendarApp({ viewMode, setViewMode }) {
   const [title, setTitle] = useState('')
 
   // Add task state
-  const [tasks, setTasks] = useState({})
   const [isTaskMode, setIsTaskMode] = useState(false)
 
   // Update time every minute
@@ -55,35 +57,49 @@ export default function CalendarApp({ viewMode, setViewMode }) {
 
   const handleCloseModal = () => setModalOpen(false)
 
+  // --- Event handlers ---
   const handleAddEvent = (eventDetails) => {
-    if (!eventDetails?.title) return
-    
-    const { 
-      title, 
-      description, 
-      isAllDay, 
-      location, 
-      color, 
-      endTime
-    } = eventDetails
-    
-    const eventKey = isAllDay || !selectedTime 
-      ? selectedDate 
-      : `${selectedDate}T${selectedTime}`
-    
-    setEvents(prev => ({
-      ...prev,
-      [eventKey]: [...(prev[eventKey] || []), { 
-        title, 
-        time: selectedTime,
-        endTime,
-        description,
-        location,
-        color,
-        isAllDay
-      }]
-    }))
-    setModalOpen(false)
+    if (!eventDetails?.title) return;
+
+    const {
+      title,
+      description,
+      isAllDay,
+      location,
+      color,
+      endTime,
+      time, // get time from eventDetails (should be required from sidebar)
+      category,
+    } = eventDetails;
+
+    // Always require a time for non-all-day events
+    const eventTime = isAllDay ? '' : (time || selectedTime || '00:00');
+    const dateKey = selectedDate;
+    const timeKey = isAllDay ? selectedDate : `${selectedDate}T${eventTime}`;
+
+    const eventObj = {
+      title,
+      time: eventTime,
+      endTime,
+      description,
+      location,
+      color,
+      isAllDay,
+      category,
+    };
+
+    setEvents(prev => {
+      // Store under date key for month/day view
+      const dateEvents = [...(prev[dateKey] || []), eventObj];
+      // Store under date+time key for week/day view
+      const timeKeyEvents = [...(prev[timeKey] || []), eventObj];
+      return {
+        ...prev,
+        [dateKey]: dateEvents,
+        [timeKey]: timeKeyEvents,
+      };
+    });
+    setModalOpen(false);
   }
 
   const handleDeleteEvent = (dateKey, idx) => {
@@ -228,6 +244,7 @@ export default function CalendarApp({ viewMode, setViewMode }) {
         tasks={tasks}
         handleToggleTaskCompletion={handleToggleTaskCompletion}
         handleDeleteTask={handleDeleteTask}
+        setEvents={setEvents} // <-- pass setEvents to Sidebar so it can save events
       />
       {/* Main content area */}
       <div className="flex-1 flex flex-col items-stretch">
@@ -251,10 +268,11 @@ export default function CalendarApp({ viewMode, setViewMode }) {
             <DayView 
               dayViewDate={dayViewDate}
               events={events}
+              setEvents={setEvents} // <-- pass setEvents so edit/delete works
               currentTime={currentTime}
               handleOpenModal={handleOpenModal}
               handleDeleteEvent={handleDeleteEvent}
-              handleDayClick={handleDayClick} // Make sure to pass this prop
+              handleDayClick={handleDayClick}
               tasks={tasks || {}}
               handleToggleTaskCompletion={handleToggleTaskCompletion}
               handleDeleteTask={handleDeleteTask}

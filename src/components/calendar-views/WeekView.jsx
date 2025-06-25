@@ -12,8 +12,6 @@ export default function WeekView({
   setEvents,
   today,
   tasks = [],
-  handleOpenModal,
-  handleDayClick,
   onGoToToday,
 }) {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -90,8 +88,10 @@ export default function WeekView({
           {weekDays.map((day, dayIndex) => {
             const dateStr = day.toISOString().split("T")[0];
             const timeStr = `${String(hour).padStart(2, "0")}:00`;
-            const eventKey = `${dateStr}T${timeStr}`;
-            const dayEvents = events[eventKey] || [];
+            const dayEvents = [
+              ...(events[`${dateStr}T${timeStr}`] || []),
+              ...(events[dateStr]?.filter((event) => event.time === timeStr) || []),
+            ];
             const isToday = day.toDateString() === today.toDateString();
 
             return (
@@ -102,9 +102,6 @@ export default function WeekView({
                     ? "bg-gradient-to-b from-blue-50/30 to-purple-50/30"
                     : "hover:bg-gradient-to-b hover:from-blue-50/20 hover:to-purple-50/20"
                 }`}
-                onClick={() =>
-                  handleOpenModal && handleOpenModal(dateStr, timeStr)
-                }
               >
                 {/* Events display */}
                 {dayEvents.map((event, idx) => (
@@ -116,13 +113,6 @@ export default function WeekView({
                     <div className="text-xs opacity-80">{event.time}</div>
                   </div>
                 ))}
-
-                {/* Add event overlay */}
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                  <div className="bg-white/90 backdrop-blur-sm rounded-full p-2 shadow-lg">
-                    <Plus className="w-4 h-4 text-blue-600" />
-                  </div>
-                </div>
 
                 {/* Current time indicator */}
                 {isCurrentHour && isToday && (
@@ -286,57 +276,8 @@ export default function WeekView({
 
         <div className="relative z-10">{generateTimeSlots()}</div>
       </div>
-
-      {/* Enhanced floating action button */}
-      <div className="fixed right-8 bottom-8 z-40">
-        <button
-          onClick={() => {
-            const today = new Date();
-            handleOpenModal && handleOpenModal(today.toISOString().split("T")[0], "09:00");
-          }}
-          className="group relative w-20 h-20 bg-gradient-to-r from-blue-500 via-purple-600 to-pink-500 rounded-3xl flex items-center justify-center shadow-[0_20px_40px_rgba(59,130,246,0.4)] transform transition-all duration-500 hover:scale-125 hover:rotate-90 hover:shadow-[0_25px_50px_rgba(59,130,246,0.6)] focus:outline-none focus:ring-4 focus:ring-blue-300/50 animate-float overflow-hidden"
-        >
-          {/* Holographic overlay */}
-          <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
-
-          <Plus className="w-8 h-8 text-white group-hover:scale-110 transition-transform duration-200 relative z-10" />
-
-          {/* Orbiting particles */}
-          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-            {[...Array(6)].map((_, i) => (
-              <div
-                key={i}
-                className="absolute w-2 h-2 bg-white/60 rounded-full animate-orbit"
-                style={{
-                  animationDelay: `${i * 200}ms`,
-                  animationDuration: "3s",
-                }}
-              />
-            ))}
-          </div>
-        </button>
-      </div>
-
-      {/* Weekly stats floating card */}
-      <div className="fixed bottom-8 left-8 z-30">
-        <div className="bg-white/90 backdrop-blur-2xl rounded-2xl p-4 shadow-2xl border border-white/50 transform transition-all duration-300 hover:scale-105">
-          <div className="text-center space-y-2">
-            <div className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              {
-                Object.keys(events).filter((key) => {
-                  const eventDate = new Date(key.split("T")[0]);
-                  return weekDays.some(
-                    (day) => day.toDateString() === eventDate.toDateString()
-                  );
-                }).length
-              }
-            </div>
-            <div className="text-xs text-gray-600">Events This Week</div>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
+
 
