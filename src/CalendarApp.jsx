@@ -89,10 +89,10 @@ export default function CalendarApp({ viewMode, setViewMode }) {
     };
 
     setEvents(prev => {
-      // Store under date key for month/day view
-      const dateEvents = [...(prev[dateKey] || []), eventObj];
-      // Store under date+time key for week/day view
-      const timeKeyEvents = [...(prev[timeKey] || []), eventObj];
+      // Remove duplicates for the same event (by title+time) in both keys
+      const filterFn = (e) => !(e.title === eventObj.title && e.time === eventObj.time);
+      const dateEvents = [...(prev[dateKey] || []).filter(filterFn), eventObj];
+      const timeKeyEvents = [...(prev[timeKey] || []).filter(filterFn), eventObj];
       return {
         ...prev,
         [dateKey]: dateEvents,
@@ -102,11 +102,24 @@ export default function CalendarApp({ viewMode, setViewMode }) {
     setModalOpen(false);
   }
 
+  // --- Edit and Delete events: always update both keys ---
   const handleDeleteEvent = (dateKey, idx) => {
     setEvents(prev => {
-      const updated = [...(prev[dateKey] || [])]
-      updated.splice(idx, 1)
-      return { ...prev, [dateKey]: updated }
+      const eventToDelete = prev[dateKey]?.[idx];
+      let updated = [...(prev[dateKey] || [])];
+      updated.splice(idx, 1);
+
+      // Remove from timeKey as well
+      let newPrev = { ...prev, [dateKey]: updated };
+      if (eventToDelete && eventToDelete.time) {
+        const timeKey = `${dateKey}T${eventToDelete.time}`;
+        if (newPrev[timeKey]) {
+          newPrev[timeKey] = newPrev[timeKey].filter(
+            (e) => !(e.title === eventToDelete.title && e.time === eventToDelete.time)
+          );
+        }
+      }
+      return newPrev;
     })
   }
   
