@@ -48,8 +48,8 @@ export default function CalendarHeader({
   };
 
   return (
-    <div className="flex items-center justify-between border-b border-gray-100 px-5 py-3 shrink-0 bg-white/90 backdrop-blur-sm shadow-sm relative z-[60]">
-      <div className="flex items-center space-x-3">
+    <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between border-b border-gray-100 px-2 sm:px-4 md:px-5 py-2 sm:py-2.5 md:py-3 shrink-0 bg-white/90 backdrop-blur-sm shadow-sm relative z-40">
+      <div className="flex items-center space-x-2 sm:space-x-3 mb-2 sm:mb-0">
         {/* Sidebar toggle for mobile - matte styling */}
         <button 
           className="md:hidden p-2 rounded-xl text-gray-600 bg-gray-50/80"
@@ -61,7 +61,7 @@ export default function CalendarHeader({
         </button>
         
         {/* Permanent search functionality */}
-        <div className="flex items-center bg-gray-50/80 rounded-full px-4 py-2 border border-gray-200/60 min-w-[280px]">
+        <div className="flex items-center bg-gray-50/80 rounded-full px-2 sm:px-3 md:px-4 py-2 border border-gray-200/60 min-w-0 sm:min-w-[180px] md:min-w-[280px] w-full sm:w-auto">
           <Search className="w-4 h-4 text-gray-500 mr-2" />
           <input
             type="text"
@@ -88,16 +88,16 @@ export default function CalendarHeader({
         </div>
       </div>
       
-      <div className="flex items-center space-x-3">
+      <div className="flex items-center space-x-2 sm:space-x-3">
         {/* Settings button */}
-        <button className="p-2.5 bg-gray-50/80 hover:bg-gray-100/80 rounded-full border border-gray-200/60 transition-all duration-200 hover:scale-105">
+        <button className="p-2 bg-gray-50/80 hover:bg-gray-100/80 rounded-full border border-gray-200/60 transition-all duration-200 hover:scale-105">
           <Settings className="w-4 h-4 text-gray-600" />
         </button>
 
         {/* View selector - dropdown glassy/futuristic */}
         <div className="relative z-[70]" ref={dropdownRef}>
           <button
-            className="flex items-center px-5 py-2 rounded-xl bg-gradient-to-r from-blue-400/20 to-purple-400/20 text-blue-700 font-bold shadow border border-blue-200/50 hover:scale-105 transition-all duration-200"
+            className="flex items-center px-3 md:px-5 py-2 rounded-xl bg-gradient-to-r from-blue-400/20 to-purple-400/20 text-blue-700 font-bold shadow border border-blue-200/50 hover:scale-105 transition-all duration-200 text-sm md:text-base"
             onClick={() => setDropdownOpen((v) => !v)}
             aria-haspopup="listbox"
             aria-expanded={dropdownOpen}
@@ -108,11 +108,11 @@ export default function CalendarHeader({
             </svg>
           </button>
           {dropdownOpen && (
-            <div className="absolute right-0 mt-2 w-40 bg-white/95 border border-blue-100 rounded-xl shadow-2xl z-[80] animate-slide-up">
+            <div className="absolute right-0 mt-2 w-36 md:w-40 bg-white/95 border border-blue-100 rounded-xl shadow-2xl z-[80] animate-slide-up">
               {VIEW_MODES.map(({ label, value }) => (
                 <button
                   key={value}
-                  className={`w-full text-left px-5 py-3 text-base font-bold rounded-xl transition-all duration-150 ${
+                  className={`w-full text-left px-4 md:px-5 py-2.5 md:py-3 text-sm md:text-base font-bold rounded-xl transition-all duration-150 ${
                     viewMode === value
                       ? 'bg-gradient-to-r from-blue-500/10 to-purple-500/10 text-blue-700'
                       : 'hover:bg-blue-50/80 text-gray-700'

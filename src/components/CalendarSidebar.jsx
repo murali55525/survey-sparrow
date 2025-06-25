@@ -73,7 +73,7 @@ export default function CalendarSidebar({
       )}
       
       {/* Enhanced sidebar */}
-      <div className={`fixed md:relative inset-y-0 left-0 z-50 w-80 bg-white/10 backdrop-blur-2xl border-r border-white/20 transform transition-all duration-300 ease-out ${
+      <div className={`fixed md:relative inset-y-0 left-0 z-50 w-11/12 max-w-xs sm:max-w-sm md:w-80 bg-white/10 backdrop-blur-2xl border-r border-white/20 transform transition-all duration-300 ease-out ${
         sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
       } flex flex-col overflow-hidden`}>
         

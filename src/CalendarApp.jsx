@@ -263,7 +263,15 @@ export default function CalendarApp({ viewMode, setViewMode }) {
           handleDayClick={handleDayClick}
         />
         
-        <div className="flex-1 overflow-auto">
+        <div className="flex-1 overflow-auto relative">
+          {/* Backdrop for mobile, covers only the view area */}
+          {sidebarOpen && (
+            <div
+              className="absolute inset-0 z-20 bg-black/40 backdrop-blur-sm md:hidden"
+              onClick={() => setSidebarOpen(false)}
+            />
+          )}
+          
           {viewMode === 'day' && (
             <DayView 
               dayViewDate={dayViewDate}
@@ -283,6 +291,7 @@ export default function CalendarApp({ viewMode, setViewMode }) {
           {viewMode === 'week' && (
             <WeekView 
               dayViewDate={dayViewDate || getDateStr(viewYear, viewMonth, today.getDate())}
+              setDayViewDate={setDayViewDate}
               events={events}
               handleOpenModal={handleOpenModal}
               handleDayClick={handleDayClick}

@@ -178,12 +178,12 @@ export default function Sidebar({
   return (
     <div 
       className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
-                 fixed md:static top-0 left-0 z-20 h-full
-                 w-64 md:w-64 lg:w-72 flex flex-col shrink-0
+                 fixed md:static top-0 left-0 z-50 h-full
+                 w-72 sm:w-80 md:w-64 lg:w-72 flex flex-col shrink-0
                  bg-white/95 md:bg-white/90 backdrop-blur-2xl transition-all duration-500 md:translate-x-0
                  shadow-2xl md:shadow-xl rounded-r-3xl border border-white/50 overflow-hidden`}
     >
-      <div className="flex-1 overflow-y-auto p-6">
+      <div className="flex-1 overflow-y-auto p-3 sm:p-6">
         {/* Enhanced header with glassmorphism */}
         <div className="flex items-center mb-8 p-4 bg-gradient-to-r from-blue-50/80 to-purple-50/80 rounded-2xl border border-white/50 shadow-lg backdrop-blur-sm">
           <div className="relative">

@@ -251,10 +251,10 @@ export default function DayView({
       </div>
       
       {/* Content */}
-      <div className="flex-1 overflow-y-auto px-2 pb-2 relative z-10">
-        <div className="max-w-7xl mx-auto"> {/* Increased max-w for even wider grid */}
+      <div className="flex-1 overflow-y-auto px-1 sm:px-2 pb-2 relative z-10">
+        <div className="max-w-full sm:max-w-2xl md:max-w-4xl lg:max-w-7xl mx-auto px-0 sm:px-2"> {/* Responsive max-w and px */}
           {/* Time slots grid */}
-          <div className="grid gap-2">
+          <div className="grid gap-1 sm:gap-2">
             {Array.from({ length: 24 }, (_, hour) => {
               const timeStr = `${String(hour).padStart(2, '0')}:00`;
               const eventsAtThisTime = getEventsAtHour(hour);
@@ -265,13 +265,13 @@ export default function DayView({
               return (
                 <div 
                   key={hour} 
-                  className="group flex flex-row items-start space-x-2 animate-slide-up"
+                  className="group flex flex-row items-start space-x-1 sm:space-x-2 animate-slide-up"
                   style={{ animationDelay: `${hour * 30}ms` }}
                 >
-                  {/* Time display - wider like Google Calendar */}
-                  <div className="w-40 text-right flex-shrink-0"> {/* Increased width */}
-                    <div className="inline-flex items-center justify-center w-36 h-10 bg-gradient-to-br from-white/60 to-gray-100/60 rounded-lg border border-white/40 shadow-md">
-                      <span className="text-base font-bold text-gray-700">
+                  {/* Time display - responsive width */}
+                  <div className="w-14 sm:w-24 md:w-32 lg:w-40 text-right flex-shrink-0">
+                    <div className="inline-flex items-center justify-center w-12 sm:w-20 md:w-28 lg:w-36 h-8 md:h-10 bg-gradient-to-br from-white/60 to-gray-100/60 rounded-lg border border-white/40 shadow-md">
+                      <span className="text-xs sm:text-sm md:text-base font-bold text-gray-700">
                         {hour === 0 ? '12 AM' : hour === 12 ? '12 PM' : hour > 12 ? `${hour - 12} PM` : `${hour} AM`}
                       </span>
                     </div>
@@ -279,7 +279,7 @@ export default function DayView({
                   
                   {/* Time slot */}
                   <div
-                    className="flex-1 min-h-[64px] bg-white/40 backdrop-blur-xl rounded-lg border border-white/50 p-4 group-hover:bg-gradient-to-r group-hover:from-blue-50/60 group-hover:to-purple-50/60 transition-all duration-300 shadow-sm hover:shadow-md transform hover:scale-[1.01] cursor-pointer relative overflow-hidden"
+                    className="flex-1 min-h-[40px] sm:min-h-[48px] md:min-h-[64px] bg-white/40 backdrop-blur-xl rounded-lg border border-white/50 p-2 md:p-4 group-hover:bg-gradient-to-r group-hover:from-blue-50/60 group-hover:to-purple-50/60 transition-all duration-300 shadow-sm hover:shadow-md transform hover:scale-[1.01] cursor-pointer relative overflow-hidden"
                     style={{ zIndex: 2 }}
                   >
                     {/* Holographic pattern overlay */}

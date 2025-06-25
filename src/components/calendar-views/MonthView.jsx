@@ -500,9 +500,9 @@ export default function MonthView({
       </div>
 
       {/* Enhanced weekdays header */}
-      <div className="relative z-10 grid grid-cols-7 border-b border-white/20 bg-white/5 backdrop-blur-sm">
+      <div className="relative z-10 grid grid-cols-7 border-b border-white/20 bg-white/5 backdrop-blur-sm text-[11px] sm:text-sm">
         {['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].map((day, idx) => (
-          <div key={day} className={`text-center py-4 text-sm font-bold border-r border-white/10 last:border-r-0 transition-all duration-200 hover:bg-white/10 ${
+          <div key={day} className={`text-center py-2 sm:py-4 text-xs sm:text-sm font-bold border-r border-white/10 last:border-r-0 transition-all duration-200 hover:bg-white/10 ${
             idx === 0 || idx === 6 ? 'text-red-500' : 'text-gray-700'
           }`}>
             <div className="uppercase tracking-wide">{day.slice(0, 3)}</div>
@@ -511,8 +511,8 @@ export default function MonthView({
       </div>
 
       {/* Enhanced calendar grid */}
-      <div className="flex-1 overflow-auto relative z-10 p-4">
-        <div className="grid grid-cols-7 gap-3 min-h-full">
+      <div className="flex-1 overflow-auto relative z-10 p-1 sm:p-2 md:p-4">
+        <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-7 gap-1 sm:gap-2 md:gap-3 min-h-full">
           {renderCalendarCells()}
         </div>
       </div>

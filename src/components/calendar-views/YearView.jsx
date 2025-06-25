@@ -255,7 +255,7 @@ export default function YearView({
       </div>
       
       {/* Clean months grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-6 gap-6 px-6 pb-12">
+      <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-4 md:gap-6 px-1 sm:px-2 md:px-6 pb-6 md:pb-12">
         {Array.from({ length: 12 }, (_, month) => {
           const colorSet = themes.gentle.months[month];
           const { totalEvents } = getEventStats(viewYear, month);
