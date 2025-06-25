@@ -126,74 +126,171 @@ export default function MonthView({
     }
   };
 
-  // Kerala and Tamil festivals data with descriptions
+  // Enhanced Kerala and Tamil festivals data
   const festivals = {
-    // January 2025
+    '2024-12-25': [{ 
+      title: 'Christmas', 
+      type: 'national', 
+      color: 'bg-red-200',
+      textColor: 'text-red-800'
+    }],
+    '2024-12-31': [{ 
+      title: 'New Year\'s Eve', 
+      type: 'national', 
+      color: 'bg-purple-200',
+      textColor: 'text-purple-800'
+    }],
+    '2025-01-01': [{ 
+      title: 'New Year\'s Day', 
+      type: 'national', 
+      color: 'bg-blue-200',
+      textColor: 'text-blue-800'
+    }],
     '2025-01-14': [{ 
       title: 'Makar Sankranti', 
       type: 'tamil', 
-      color: 'from-orange-100 to-amber-200',
-      description: 'Makar Sankranti marks the transition of the Sun into the zodiacal sign of Capricorn (Makara) on its celestial path. It is celebrated with kite flying, sesame sweets, and prayers for prosperity.',
-      significance: 'Harvest festival celebrating the sun god',
-      traditions: ['Kite flying', 'Til-gul sweets', 'Holy bath in rivers']
+      color: 'bg-orange-200',
+      textColor: 'text-orange-800'
     }],
     '2025-01-15': [{ 
       title: 'Thai Pusam', 
       type: 'tamil', 
-      color: 'from-yellow-100 to-orange-200',
-      description: 'Thai Pusam is a Hindu festival celebrated by Tamil communities worldwide. It honors Lord Murugan and is marked by elaborate processions and kavadi (burden-bearing) ceremonies.',
-      significance: 'Devotion to Lord Murugan',
-      traditions: ['Kavadi procession', 'Body piercing', 'Milk abhishekam']
+      color: 'bg-yellow-200',
+      textColor: 'text-yellow-800'
     }],
-    
-    // April 2025
+    '2025-01-26': [{ 
+      title: 'Republic Day', 
+      type: 'national', 
+      color: 'bg-green-200',
+      textColor: 'text-green-800'
+    }],
+    '2025-02-13': [{ 
+      title: 'Maha Shivratri', 
+      type: 'kerala', 
+      color: 'bg-blue-200',
+      textColor: 'text-blue-800'
+    }],
+    '2025-02-26': [{ 
+      title: 'Holi', 
+      type: 'national', 
+      color: 'bg-pink-200',
+      textColor: 'text-pink-800'
+    }],
+    '2025-03-30': [{ 
+      title: 'Ugadi', 
+      type: 'tamil', 
+      color: 'bg-green-200',
+      textColor: 'text-green-800'
+    }],
     '2025-04-10': [{ 
       title: 'Vishu', 
       type: 'kerala', 
-      color: 'from-yellow-100 to-amber-200',
-      description: 'Vishu is the traditional New Year of Kerala. It begins with Vishukkani (auspicious sight) and includes feast, fireworks, and giving Vishukkaineetam (money to younger ones).',
-      significance: 'Malayalam New Year celebration',
-      traditions: ['Vishukkani viewing', 'Sadya feast', 'Vishukkaineetam', 'Fireworks']
+      color: 'bg-yellow-200',
+      textColor: 'text-yellow-800'
     }],
     '2025-04-13': [{ 
       title: 'Tamil New Year', 
       type: 'tamil', 
-      color: 'from-red-100 to-orange-200',
-      description: 'Tamil New Year (Puthandu) marks the beginning of the Tamil calendar year. Homes are decorated with kolam patterns and families gather for traditional meals.',
-      significance: 'Beginning of Tamil calendar year',
-      traditions: ['Kolam decoration', 'Mango leaf decoration', 'Traditional feast', 'New clothes']
+      color: 'bg-red-200',
+      textColor: 'text-red-800'
     }],
-    
-    // August 2025
-    '2025-08-19': [{ 
-      title: 'Onam (Begins)', 
+    '2025-04-14': [{ 
+      title: 'Ram Navami', 
       type: 'kerala', 
-      color: 'from-yellow-100 to-orange-200',
-      description: 'Onam is the most important festival of Kerala, celebrating the homecoming of King Mahabali. It features elaborate flower carpets (Pookalam) and traditional boat races.',
-      significance: 'Homecoming of King Mahabali',
-      traditions: ['Pookalam (flower carpet)', 'Thiruvathira dance', 'Pulikali', 'Vallamkali (boat race)']
+      color: 'bg-orange-200',
+      textColor: 'text-orange-800'
+    }],
+    '2025-05-12': [{ 
+      title: 'Akshaya Tritiya', 
+      type: 'kerala', 
+      color: 'bg-yellow-200',
+      textColor: 'text-yellow-800'
+    }],
+    '2025-06-15': [{ 
+      title: 'Eid ul-Fitr', 
+      type: 'national', 
+      color: 'bg-green-200',
+      textColor: 'text-green-800'
+    }],
+    '2025-07-13': [{ 
+      title: 'Guru Purnima', 
+      type: 'kerala', 
+      color: 'bg-purple-200',
+      textColor: 'text-purple-800'
+    }],
+    '2025-08-15': [{ 
+      title: 'Independence Day', 
+      type: 'national', 
+      color: 'bg-green-200',
+      textColor: 'text-green-800'
+    }],
+    '2025-08-16': [{ 
+      title: 'Janmashtami', 
+      type: 'kerala', 
+      color: 'bg-blue-200',
+      textColor: 'text-blue-800'
+    }],
+    '2025-08-19': [{ 
+      title: 'Onam Begins', 
+      type: 'kerala', 
+      color: 'bg-yellow-200',
+      textColor: 'text-yellow-800'
     }],
     '2025-08-30': [{ 
       title: 'Thiruvonam (Onam)', 
       type: 'kerala', 
-      color: 'from-gold-100 to-yellow-200',
-      description: 'Thiruvonam is the most important day of Onam festival. Families gather for the grand Onasadya feast with 26+ dishes served on banana leaves.',
-      significance: 'Main day of Onam celebration',
-      traditions: ['Onasadya feast', 'Thiruvathira dance', 'Tiger dance', 'Family gatherings']
+      color: 'bg-amber-200',
+      textColor: 'text-amber-800'
     }],
-    
-    // November 2025
+    '2025-09-05': [{ 
+      title: 'Ganesh Chaturthi', 
+      type: 'kerala', 
+      color: 'bg-pink-200',
+      textColor: 'text-pink-800'
+    }],
+    '2025-10-02': [{ 
+      title: 'Gandhi Jayanti', 
+      type: 'national', 
+      color: 'bg-green-200',
+      textColor: 'text-green-800'
+    }],
+    '2025-10-20': [{ 
+      title: 'Navaratri Begins', 
+      type: 'kerala', 
+      color: 'bg-purple-200',
+      textColor: 'text-purple-800'
+    }],
+    '2025-10-22': [{ 
+      title: 'Dussehra', 
+      type: 'kerala', 
+      color: 'bg-red-200',
+      textColor: 'text-red-800'
+    }],
+    '2025-11-01': [{ 
+      title: 'Diwali', 
+      type: 'kerala', 
+      color: 'bg-yellow-200',
+      textColor: 'text-yellow-800'
+    }],
+    '2025-11-15': [{ 
+      title: 'Guru Nanak Jayanti', 
+      type: 'kerala', 
+      color: 'bg-cyan-200',
+      textColor: 'text-cyan-800'
+    }],
     '2025-11-30': [{ 
       title: 'Karthikai Deepam', 
       type: 'tamil', 
-      color: 'from-amber-100 to-yellow-200',
-      description: 'Karthikai Deepam is the festival of lights celebrated in Tamil Nadu. Homes are illuminated with oil lamps and special prayers are offered to Lord Shiva.',
-      significance: 'Festival of lights honoring Lord Shiva',
-      traditions: ['Oil lamp lighting', 'Bharani star observation', 'Special prayers', 'Sweet preparations']
+      color: 'bg-amber-200',
+      textColor: 'text-amber-800'
+    }],
+    '2025-12-25': [{ 
+      title: 'Christmas', 
+      type: 'national', 
+      color: 'bg-red-200',
+      textColor: 'text-red-800'
     }],
   };
-
-  // ...existing utility functions...
 
   const renderCalendarCells = () => {
     const cells = [];
@@ -201,11 +298,11 @@ export default function MonthView({
     // Empty cells for days before the 1st of the month
     for (let i = 0; i < firstDay; i++) {
       cells.push(
-        <div key={`empty-${i}`} className="bg-white border border-gray-100" />
+        <div key={`empty-${i}`} className="bg-white border border-gray-200 min-h-[140px]" />
       );
     }
     
-    // Day cells
+    // Day cells with festivals integrated
     for (let day = 1; day <= daysInMonth; day++) {
       const dateStr = getDateStr(viewYear, viewMonth, day);
       const isToday = isCurrentDate(day);
@@ -213,108 +310,86 @@ export default function MonthView({
       
       const dayEvents = events[dateStr] || [];
       const dayFestivals = festivals[dateStr] || [];
-      const allItems = [...dayEvents, ...dayFestivals];
-      const hasFestivals = dayFestivals.length > 0;
+      const primaryFestival = dayFestivals[0]; // Display only the first festival above
+      const remainingFestivals = dayFestivals.slice(1); // Remaining festivals go inside
+      const allItems = [...remainingFestivals, ...dayEvents]; // Combine remaining festivals and events
       
       cells.push(
         <div
-          key={dateStr}
-          className={`border border-gray-200 p-3 min-h-[120px] flex flex-col relative bg-white ${
-            isToday ? dayColors.today : 
-            isWeekend ? dayColors.weekend : dayColors.weekday
-          } ${allItems.length > 0 ? dayColors.hasEvents : ''}`}
+          key={`date-${day}`}
+          className={`border border-gray-200 p-2 min-h-[160px] flex flex-col justify-start items-stretch ${
+            isToday ? 'bg-blue-50' : 'bg-white'
+          } hover:bg-gray-50 cursor-pointer transition-all duration-200`}
           onClick={() => handleDayClick(dateStr)}
+          style={{ overflow: 'visible' }}
         >
-          <div className="flex items-center justify-between mb-2">
-            <span className={`flex items-center justify-center h-8 w-8 text-sm font-semibold ${
-              isToday ? 'border-2 border-gray-400 rounded-full' : ''
+          {/* Primary festival displayed above day number */}
+          {primaryFestival && (
+            <div 
+              className={`${primaryFestival.color} ${primaryFestival.textColor} px-2 py-0.5 rounded text-xs font-semibold mb-1 border-l-2 border-current flex items-center gap-1`}
+              style={{ whiteSpace: 'normal', overflow: 'visible', maxWidth: '100%' }}
+              title={`${primaryFestival.title} - ${primaryFestival.type === 'kerala' ? 'Kerala Festival' : primaryFestival.type === 'tamil' ? 'Tamil Festival' : 'National Holiday'}`}
+            >
+              <span className="text-xs">
+                {primaryFestival.type === 'kerala' ? '🌴' : 
+                 primaryFestival.type === 'tamil' ? '🏛️' : 
+                 primaryFestival.type === 'national' ? '🇮🇳' : '🎉'}
+              </span>
+              <span className="break-words">{primaryFestival.title}</span>
+            </div>
+          )}
+          
+          {/* Day number */}
+          <div className="flex items-center justify-between mb-1">
+            <span className={`text-sm font-medium ${
+              isToday 
+                ? 'bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold' 
+                : isWeekend 
+                  ? 'text-gray-500' 
+                  : 'text-gray-900'
             }`}>
               {day}
             </span>
-            
-            <div className="flex items-center gap-1">
-              {allItems.length > 0 && (
-                <span className="text-xs bg-gray-200 text-gray-800 rounded-full px-2 py-1 font-medium">
-                  {allItems.length}
-                </span>
-              )}
-              {hasFestivals && (
-                <span className="text-xs bg-orange-500 text-white rounded-full px-2 py-1 font-medium">
-                  🎉
-                </span>
-              )}
-              <button
-                className="w-7 h-7 flex items-center justify-center text-gray-500 bg-white rounded-lg border border-gray-200"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleDayClick(dateStr);
-                }}
-              >
-                <Plus className="w-4 h-4" />
-              </button>
-            </div>
+            {allItems.length > 0 && (
+              <span className="text-xs bg-gray-200 text-gray-600 rounded-full px-1.5 py-0.5 font-medium">
+                {allItems.length}
+              </span>
+            )}
           </div>
           
-          {/* Events and festivals display */}
-          <div className="flex flex-col gap-1 overflow-y-auto flex-1">
-            {/* Show festivals first with names */}
-            {dayFestivals.slice(0, 2).map((festival, idx) => {
-              const festivalIcon = festival.type === 'kerala' ? '🌴' : 
-                                 festival.type === 'tamil' ? '🏛️' : 
-                                 festival.type === 'national' ? '🇮🇳' : '🎉';
-              
-              return (
-                <div 
-                  key={`festival-${idx}`} 
-                  className={`p-2 rounded bg-gradient-to-r ${festival.color} border-l-4 border-orange-500 shadow-sm`}
-                  onClick={(ev) => ev.stopPropagation()}
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm">{festivalIcon}</span>
-                    <div className="flex-1 min-w-0">
-                      <span className="block text-xs font-bold text-orange-800 truncate">
-                        {festival.title}
-                      </span>
-                      <span className="text-xs text-orange-700 opacity-75">
-                        {festival.type === 'kerala' ? 'Kerala Festival' : 
-                         festival.type === 'tamil' ? 'Tamil Festival' : 'National Holiday'}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-            
-            {/* Then show regular events */}
-            {dayEvents.slice(0, Math.max(1, 3 - dayFestivals.length)).map((event, idx) => (
+          {/* Remaining festivals and events inside the cell */}
+          <div className="flex flex-col gap-1 flex-1">
+            {/* Show remaining festivals (if any) */}
+            {remainingFestivals.map((festival, idx) => (
               <div 
-                key={`event-${idx}`} 
-                className="flex items-center py-1.5 px-2 rounded bg-white border border-gray-200 shadow-sm"
-                onClick={(ev) => ev.stopPropagation()}
+                key={`festival-${idx}`} 
+                className={`${festival.color} ${festival.textColor} px-2 py-0.5 rounded text-xs font-medium border-l-3 border-current flex items-center gap-1`}
+                title={`${festival.title} - ${festival.type === 'kerala' ? 'Kerala Festival' : festival.type === 'tamil' ? 'Tamil Festival' : 'National Holiday'}`}
               >
-                <div className="flex items-center gap-1 flex-1 min-w-0">
-                  {priorityIcons[event.priority]}
-                  <span className="truncate text-xs font-medium">{event.title}</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  {event.time && (
-                    <span className="text-xs text-gray-500">{event.time}</span>
-                  )}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteEvent(dateStr, idx);
-                    }}
-                    className="text-gray-500 p-0.5 rounded"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </div>
+                <span className="text-xs">
+                  {festival.type === 'kerala' ? '🌴' : 
+                   festival.type === 'tamil' ? '🏛️' : 
+                   festival.type === 'national' ? '🇮🇳' : '🎉'}
+                </span>
+                <span className="break-words">{festival.title}</span>
               </div>
             ))}
             
+            {/* Show regular events */}
+            {dayEvents.slice(0, Math.max(1, 3 - remainingFestivals.length)).map((event, idx) => (
+              <div 
+                key={`event-${idx}`} 
+                className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded text-xs font-medium border-l-3 border-blue-600 flex items-center gap-1"
+                title={event.title}
+              >
+                <span className="break-words">{event.title}</span>
+                {event.time && <span className="text-gray-600 ml-1 text-xs">{event.time}</span>}
+              </div>
+            ))}
+            
+            {/* Show "+X more" indicator */}
             {allItems.length > 3 && (
-              <div className="text-xs text-gray-500 text-center py-1 bg-gray-100 rounded">
+              <div className="text-xs text-gray-500 px-2 py-0.5 hover:bg-gray-100 rounded cursor-pointer text-center">
                 +{allItems.length - 3} more
               </div>
             )}
@@ -323,87 +398,75 @@ export default function MonthView({
       );
     }
     
+    // Ensure the grid has at least 6 rows (42 cells) for a full month layout
+    while (cells.length < 42) {
+      cells.push(<div key={`filler-${cells.length}`} className="bg-white border border-gray-200 min-h-[160px]" />);
+    }
+    
     return cells;
   };
 
   return (
-    <div className="w-full h-full flex flex-col bg-transparent overflow-hidden relative">
-      {/* ...existing cosmic background and header... */}
-      <div className="sticky top-0 z-30 px-6 pt-6 pb-4">
-        <div className="bg-white/10 backdrop-blur-3xl rounded-[2rem] p-8 shadow-[0_25px_60px_rgba(8,_112,_184,_0.8)] border border-white/30 relative overflow-hidden">
-          <div className="flex items-center justify-between relative z-10">
-            <div className="flex items-center space-x-8">
-              <div className="relative group">
-                <h1 className="text-6xl font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent drop-shadow-2xl">
-                  {monthNames[viewMonth]} {viewYear}
-                </h1>
-                <div className="absolute -bottom-2 left-0 w-full h-2 bg-gradient-to-r from-blue-400 to-purple-600 rounded-full transform origin-left group-hover:scale-x-100 scale-x-0 transition-transform duration-700"></div>
-              </div>
-            </div>
+    <div className="w-full h-full flex flex-col bg-white overflow-hidden">
+      {/* Clean header like Google Calendar */}
+      <div className="border-b border-gray-200 px-6 py-4 bg-white">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <h1 className="text-2xl font-normal text-gray-900">
+              {monthNames[viewMonth]} {viewYear}
+            </h1>
+          </div>
+          
+          <div className="flex items-center gap-3">
+            <button
+              className="px-4 py-2 text-blue-600 border border-blue-600 rounded hover:bg-blue-50 transition-colors duration-200 text-sm font-medium"
+              onClick={() => {
+                if (onGoToToday) onGoToToday();
+              }}
+            >
+              Today
+            </button>
             
-            <div className="flex items-center gap-6">
+            <div className="flex">
               <button
-                className="group relative px-8 py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold shadow-2xl transform transition-all duration-300 hover:scale-110 hover:shadow-emerald-500/25 overflow-hidden"
-                onClick={() => {
-                  if (onGoToToday) onGoToToday();
-                }}
+                onClick={() => navigateMonth('prev')}
+                className="p-2 text-gray-600 hover:bg-gray-100 rounded-l border border-r-0 border-gray-300"
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <span className="relative z-10 flex items-center gap-2">
-                  <span className="text-xl animate-bounce">✨</span>
-                  Today
-                </span>
+                <ChevronLeft className="w-4 h-4" />
               </button>
-              
-              <div className="flex bg-white/20 backdrop-blur-xl rounded-2xl shadow-lg overflow-hidden p-1">
-                <button
-                  onClick={() => navigateMonth('prev')}
-                  className="p-4 text-gray-700 hover:bg-gradient-to-r hover:from-blue-500 hover:to-purple-600 hover:text-white transition-all duration-300 group rounded-xl"
-                >
-                  <ChevronLeft className="w-6 h-6 transform group-hover:scale-110 transition-transform duration-200" />
-                </button>
-                <button
-                  onClick={() => navigateMonth('next')}
-                  className="p-4 text-gray-700 hover:bg-gradient-to-r hover:from-blue-500 hover:to-purple-600 hover:text-white transition-all duration-300 group rounded-xl"
-                >
-                  <ChevronRight className="w-6 h-6 transform group-hover:scale-110 transition-transform duration-200" />
-                </button>
-              </div>
+              <button
+                onClick={() => navigateMonth('next')}
+                className="p-2 text-gray-600 hover:bg-gray-100 rounded-r border border-gray-300"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Ultra-modern weekdays header */}
-      <div className="grid grid-cols-7 bg-gradient-to-r from-white/80 via-white/90 to-white/80 backdrop-blur-xl border-b border-gray-200/50 sticky top-[140px] z-20 shadow-lg">
+      {/* Weekdays header */}
+      <div className="grid grid-cols-7 border-b border-gray-200 bg-gray-50">
         {['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].map((day, idx) => (
-          <div key={day + idx} className={`text-center py-6 font-black text-lg transition-all duration-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 relative group ${
-            idx === 0 || idx === 6 ? 'text-red-500' : 'text-gray-800'
+          <div key={day} className={`text-center py-3 text-xs font-medium border-r border-gray-200 last:border-r-0 ${
+            idx === 0 || idx === 6 ? 'text-blue-600' : 'text-gray-700'
           }`}>
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent to-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            <div className="relative z-10">
-              <div className="text-xl font-black">{day}</div>
-              <div className="text-xs opacity-75 mt-1 font-semibold">{day.slice(0, 3)}</div>
-            </div>
+            <div className="text-xs font-medium text-gray-500 mb-1">{day.slice(0, 3).toUpperCase()}</div>
           </div>
         ))}
       </div>
 
-      {/* Revolutionary calendar grid */}
-      <div className="grid grid-cols-7 flex-1 bg-gradient-to-br from-white/50 via-gray-50/50 to-blue-50/50 backdrop-blur-sm relative overflow-hidden">
-        {/* Floating background pattern */}
-        <div className="absolute inset-0 opacity-5">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_25%,rgba(59,130,246,0.5),transparent_50%)]"></div>
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_75%,rgba(168,85,247,0.5),transparent_50%)]"></div>
+      {/* Calendar grid - festivals show in respective date cells */}
+      <div className="flex-1 overflow-auto">
+        <div className="grid grid-cols-7 min-h-full">
+          {renderCalendarCells()}
         </div>
-        
-        {renderCalendarCells()}
       </div>
 
       {/* Enhanced modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl p-0 w-full max-w-md overflow-hidden border border-gray-200/50 transform animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-md p-0 w-full max-w-md overflow-hidden border border-gray-200/50 transform animate-in zoom-in-95 duration-200">
             {/* Enhanced modal header */}
             <div className="bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-4">
               <div className="flex items-center">
@@ -464,7 +527,7 @@ export default function MonthView({
               </button>
               <button
                 onClick={handleAddEvent}
-                className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl font-semibold shadow-lg transition-all duration-200 hover:shadow-xl transform hover:scale-105"
+                className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl font-semibold shadow-md transition-all duration-200 hover:shadow-lg transform hover:scale-105"
               >
                 Save Event
               </button>

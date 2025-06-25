@@ -38,7 +38,7 @@ export default function DayView({
         <h2 className="text-lg font-normal text-gray-700 mb-2">Please select a date</h2>
         <button
           className="mt-4 py-2 px-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-          onClick={() => handleDayClick(new Date().toISOString().split('T')[0])}
+          onClick={handleGoToToday}
         >
           Go to Today
         </button>
@@ -218,7 +218,16 @@ export default function DayView({
     return d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
   };
 
-  const navigateDay = (direction) => {
+  // Fix: Go to Today button handler
+  const handleGoToToday = () => {
+    if (typeof setDayViewDate === 'function') {
+      setDayViewDate(new Date());
+    }
+  };
+
+  // Fix: Navigation for previous/next day
+  const handleNavigateDay = (direction) => {
+    if (!dayViewDate || !setDayViewDate) return;
     const newDate = new Date(dayViewDate);
     if (direction === 'prev') {
       newDate.setDate(newDate.getDate() - 1);
@@ -235,12 +244,12 @@ export default function DayView({
       : new Date().toISOString().split('T')[0]
   ] || [];
 
-  // Defensive: Only call setDayViewDate if it's a function
-  const handleGoToToday = () => {
-    if (typeof setDayViewDate === 'function') {
-      setDayViewDate(new Date());
-    }
-  };
+  // Fix: Use a state for current time and update every minute
+  const [currentTime, setCurrentTime] = React.useState(new Date());
+  React.useEffect(() => {
+    const interval = setInterval(() => setCurrentTime(new Date()), 1000 * 30);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="w-full h-full flex flex-col bg-transparent relative overflow-hidden">
@@ -263,7 +272,11 @@ export default function DayView({
                 <h1 className="text-4xl font-black bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent drop-shadow-2xl">
                   {formatDate(currentDate)}
                 </h1>
-                <div className="absolute -bottom-1.5 left-0 w-full h-1.5 bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 rounded-full transform origin-left group-hover:scale-x-100 scale-x-0 transition-transform duration-700"></div>
+                {/* Show current time below date */}
+                <div className="mt-2 text-lg font-bold text-blue-700 flex items-center gap-2">
+                  <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                  {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: undefined })}
+                </div>
                 
                 {/* Floating decorative elements */}
                 <div className="absolute -top-3 -right-3 w-6 h-6 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full animate-bounce shadow-xl"></div>
@@ -274,9 +287,7 @@ export default function DayView({
             <div className="flex items-center gap-4">
               <button
                 className="group relative px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold shadow-xl transform transition-all duration-300 hover:scale-105 hover:shadow-emerald-500/25 overflow-hidden"
-                onClick={() => {
-                  if (onGoToToday) onGoToToday();
-                }}
+                onClick={handleGoToToday}
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
@@ -288,13 +299,13 @@ export default function DayView({
               
               <div className="flex bg-white/20 backdrop-blur-xl rounded-xl shadow-md overflow-hidden p-0.5">
                 <button
-                  onClick={() => navigateDay('prev')}
+                  onClick={() => handleNavigateDay('prev')}
                   className="p-3 text-gray-700 hover:bg-gradient-to-r hover:from-blue-500 hover:to-purple-600 hover:text-white transition-all duration-300 group rounded-lg"
                 >
                   <ChevronLeft className="w-5 h-5 transform group-hover:scale-110 transition-transform duration-200" />
                 </button>
                 <button
-                  onClick={() => navigateDay('next')}
+                  onClick={() => handleNavigateDay('next')}
                   className="p-3 text-gray-700 hover:bg-gradient-to-r hover:from-blue-500 hover:to-purple-600 hover:text-white transition-all duration-300 group rounded-lg"
                 >
                   <ChevronRight className="w-5 h-5 transform group-hover:scale-110 transition-transform duration-200" />
