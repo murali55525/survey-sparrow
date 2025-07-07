@@ -1,0 +1,119 @@
+.week-view-container {
+  flex: 1;
+  padding: 24px;
+  overflow: auto;
+}
+
+.week-header {
+  display: grid;
+  grid-template-columns: 80px repeat(7, 1fr);
+  gap: 1px;
+  background-color: #e5e7eb;
+  border-radius: 8px 8px 0 0;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+.week-header-time {
+  background: #f8fafc;
+  padding: 16px 8px;
+  text-align: center;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.week-header-day {
+  background: #f8fafc;
+  padding: 16px 8px;
+  text-align: center;
+  border-right: 1px solid #e2e8f0;
+}
+
+.week-header-day:last-child {
+  border-right: none;
+}
+
+.week-header-day-name {
+  font-size: 12px;
+  color: #64748b;
+  margin-bottom: 4px;
+}
+
+.week-header-day-number {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.week-header-day-number.today {
+  color: #3b82f6;
+}
+
+.week-grid {
+  display: grid;
+  grid-template-columns: 80px repeat(7, 1fr);
+  gap: 1px;
+  background-color: #e5e7eb;
+  border-radius: 0 0 8px 8px;
+  overflow: hidden;
+  min-height: 1440px;
+}
+
+.time-slot {
+  background: #ffffff;
+  border-right: 1px solid #e2e8f0;
+  padding: 8px;
+  text-align: right;
+  font-size: 12px;
+  color: #64748b;
+  min-height: 60px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding-top: 8px;
+}
+
+.day-column {
+  background: #ffffff;
+  position: relative;
+  min-height: 60px;
+  border-right: 1px solid #e2e8f0;
+}
+
+.day-column:last-child {
+  border-right: none;
+}
+
+.week-event {
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 12px;
+  cursor: pointer;
+  z-index: 10;
+  min-height: 20px;
+  font-weight: 500;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.week-event:hover {
+  opacity: 0.9;
+  transform: scale(1.02);
+}
+
+.week-event-title {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.week-event-time {
+  font-size: 10px;
+  opacity: 0.9;
+}

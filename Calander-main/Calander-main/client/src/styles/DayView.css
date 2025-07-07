@@ -1,0 +1,132 @@
+.day-view-container {
+  flex: 1;
+  padding: 24px;
+  overflow: auto;
+}
+
+.day-header {
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.day-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 8px;
+}
+
+.day-subtitle {
+  color: #3b82f6;
+  font-weight: 500;
+}
+
+.day-summary {
+  margin-bottom: 24px;
+  padding: 16px;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.day-summary-title {
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 8px;
+}
+
+.day-summary-events {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.day-summary-event {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.day-summary-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.day-summary-more {
+  font-size: 14px;
+  color: #64748b;
+  margin-top: 4px;
+}
+
+.day-grid {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 0;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.day-time-slot {
+  padding: 12px 8px;
+  text-align: right;
+  font-size: 12px;
+  color: #64748b;
+  border-bottom: 1px solid #e2e8f0;
+  background: #f8fafc;
+  min-height: 60px;
+}
+
+.day-content-slot {
+  position: relative;
+  border-bottom: 1px solid #e2e8f0;
+  background: #ffffff;
+  min-height: 60px;
+  padding: 4px 8px;
+}
+
+.day-event {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  border-radius: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+  color: white;
+  font-weight: 500;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s;
+}
+
+.day-event:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
+}
+
+.day-event-title {
+  font-weight: 600;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.day-event-details {
+  font-size: 11px;
+  opacity: 0.9;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.day-event-description {
+  font-size: 11px;
+  opacity: 0.8;
+  margin-top: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
