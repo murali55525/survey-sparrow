@@ -152,7 +152,6 @@ export default function MonthView() {
                       display: isCurrentDay ? "flex" : "block",
                       alignItems: isCurrentDay ? "center" : "normal",
                       justifyContent: isCurrentDay ? "center" : "normal",
-                      fontSize: isCurrentDay ? "12px" : "14px",
                     }}
                   >
                     {date.getDate()}
@@ -232,3 +231,4 @@ export default function MonthView() {
     </div>
   )
 }
+
